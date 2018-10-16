@@ -23,6 +23,7 @@
     "adm-zip": "^0.4.11",
     "core-js": "^2.5.4",
     "openzeppelin-solidity": "^2.0.0-rc.2",
+    "parse-json": "^4.0.0",
     "rxjs": "^6.0.0",
     "zone.js": "^0.8.26"
   },
