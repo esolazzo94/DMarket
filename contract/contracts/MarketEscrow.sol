@@ -13,7 +13,7 @@ address private payee;
 uint256 private depositPayee;
 uint256 private depositBuyer;
     
-constructor(address addr){
+constructor(address addr) public {
     hashFile = 'null';
     expiration = now + 86400;
     marketAddress = addr;
@@ -25,14 +25,14 @@ function setPayee(address p) public onlyPrimary() {
  payee = p;
 }
 
-function setFile(string hFile, string hEncryptedFile) onlyPayee() payable {
+function setFile(string hFile, string hEncryptedFile) public onlyPayee() payable {
     require(depositPayee == 0);
     hashFile = hFile;
     hashEncryptedFile = hEncryptedFile;
     depositPayee = msg.value;
 }
 
-function getHashAddress() public onlyPrimary() returns(string) {
+function getHashAddress() public view onlyPrimary() returns(string) {
     return hashEncryptedFile;
 }
 
