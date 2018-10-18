@@ -27,15 +27,12 @@ export class LoginComponent implements OnInit {
     
   }
 
-  public uport() {
-    this.authenticationService.login();
-    /*.subscribe(
-      data => {
-          this.router.navigate([this.returnUrl]);
-      },
-      error => {
-          this.alertService.error(error);
-      });*/
+  public connect() {
+    this.authenticationService.login()
+    .then((credentials) =>{
+      console.log(credentials);
+    });
+    
   }
 
 }
