@@ -11,6 +11,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './home/home.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule } from '@angular/material';
+import { UserComponent } from './user/user.component';
+import { ProductsComponent } from './products/products.component';
+import { SalesComponent } from './sales/sales.component';
+import { PurchasesComponent } from './purchases/purchases.component';
 
 
 @NgModule({
@@ -19,6 +23,10 @@ import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, Mat
     LoginComponent,
     AlertComponent,
     HomeComponent,
+    UserComponent,
+    ProductsComponent,
+    SalesComponent,
+    PurchasesComponent,
   ],
   imports: [
     BrowserModule,
