@@ -53,6 +53,7 @@ export class HomeComponent {
 
       const decodedId = uportconnect.MNID.decode(localUser.address);
       this.address = decodedId.address;
+      console.log(connect.getProvider());
 
       console.log(localUser);
     }
