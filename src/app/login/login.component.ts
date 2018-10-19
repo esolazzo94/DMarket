@@ -16,8 +16,7 @@ export class LoginComponent implements OnInit {
   submitted = false;
   returnUrl: string;
 
-  constructor(
-    
+  constructor(  
         private route: ActivatedRoute,
         private router: Router,
         private authenticationService: AuthenticationService,
@@ -28,15 +27,16 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  public connect() {
+  connect() {
     this.authenticationService.login()
     .then((user) =>{
-      console.log(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
+      var localUser = localStorage.getItem('currentUser');
       this.router.navigate([this.returnUrl]);
-    });
-    
+    });    
   }
+
+
 
 }
 
