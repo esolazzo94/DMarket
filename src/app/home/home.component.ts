@@ -7,6 +7,15 @@ import { Router, ActivatedRoute} from '@angular/router';
 import { AlertService } from '../services/alert.service';
 import { AuthenticationService } from '../services/authentication.service';
 
+declare var uportconnect: any;
+
+
+const connect = new uportconnect.Connect('Erasmo Solazzo\'s new app', {
+  clientId: '2ouwybCUvNbKAHHpuUbSqK68xun1FsJaaP2',
+  signer: uportconnect.SimpleSigner('2fe3ac212cf3b4defc85e9e803b59bf63198f35e8f7e2254d01f07fbd81c6874'),
+  network: 'rinkeby'
+});
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -20,6 +29,7 @@ export class HomeComponent {
     );*/
 
   public name;
+  public address;
   public loadUser = false;
   public loadProducts = false;
   public loadPurchases = false;
@@ -40,6 +50,10 @@ export class HomeComponent {
     private alertService: AlertService) {
       var localUser = JSON.parse(localStorage.getItem('currentUser'));
       this.name = localUser.name;
+
+      const decodedId = uportconnect.MNID.decode(localUser.address);
+      this.address = decodedId.address;
+
       console.log(localUser);
     }
 
