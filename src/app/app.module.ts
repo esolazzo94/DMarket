@@ -6,7 +6,6 @@ import { MaterialModule } from  './material/material.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { AppRoutingModule } from './/app-routing.module';
-import { AlertComponent } from './alert/alert.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './home/home.component';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -15,18 +14,19 @@ import { UserComponent } from './user/user.component';
 import { ProductsComponent } from './products/products.component';
 import { SalesComponent } from './sales/sales.component';
 import { PurchasesComponent } from './purchases/purchases.component';
+import { AlertDialog } from './services/alert.service';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    AlertComponent,
     HomeComponent,
     UserComponent,
     ProductsComponent,
     SalesComponent,
     PurchasesComponent,
+    AlertDialog
   ],
   imports: [
     BrowserModule,
@@ -40,6 +40,7 @@ import { PurchasesComponent } from './purchases/purchases.component';
     MatIconModule,
     MatListModule
   ],
+  entryComponents: [AppComponent,AlertDialog],
   providers: [],
   bootstrap: [AppComponent]
 })

@@ -1,40 +1,41 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Component, Inject } from '@angular/core';
 import { Router, NavigationStart } from '@angular/router';
 import { Subject, Observable } from 'rxjs';
+import { MatDialog,MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+
+export interface DialogData {
+  message: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AlertService {
-  private subject = new Subject<any>();
-  private keepAfterNavigationChange = false;
 
-  constructor(private router: Router) { 
-    //Scelta se cancellare Aler al cambio Route
-    router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
-          if (this.keepAfterNavigationChange) {
-            this.keepAfterNavigationChange = false;
-          }
-          else {
-            this.subject.next();
-          }
-      }
+  message: string;
+
+  constructor(public dialog: MatDialog) {}
+
+
+
+  openDialog(message: string) {
+    this.message = message;
+
+    let dialogRef = this.dialog.open(AlertDialog, {
+      width: '250px',
+      data: {message: this.message }
     });
+
   }
 
-  success(message: string, keepAfterNavigationChange = false) {
-    this.keepAfterNavigationChange = keepAfterNavigationChange;
-    this.subject.next({ type: 'success', text: message});
-  }
+}
 
-  error(message:string, keepAfterNavigationChange = false) {
-    this.keepAfterNavigationChange = keepAfterNavigationChange;
-    this.subject.next({ type: 'error', text: message});
-  }
-
-  getMessage(): Observable<any> {
-    return this.subject.asObservable();
-  }
-
+@Component({
+  selector: 'alert.componentdialog',
+  templateUrl: 'alert.componentdialog.html',
+})
+export class AlertDialog {
+  constructor(
+    public dialogRef: MatDialogRef<AlertDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData) {}
 }

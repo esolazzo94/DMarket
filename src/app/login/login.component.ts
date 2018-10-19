@@ -37,6 +37,11 @@ export class LoginComponent implements OnInit {
     });    
   }
 
+  register() {
+    this.alertService.openDialog("Non Implementato");
+
+  }
+
 
 
 }

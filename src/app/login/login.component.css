@@ -14,14 +14,12 @@
     background-image: url("../../assets/images/login_backgorund.jpg");
   }
 
-  body {
-    background-image: url("../../assets/images/login_backgorund.jpg");
-  }
+
 
  
 
 mat-card {
-  width: 6% ;
+  width: 150px ;
   margin: 10% auto;
 }
 
