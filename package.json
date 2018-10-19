@@ -28,6 +28,7 @@
     "parse-json": "^4.0.0",
     "rxjs": "^6.0.0",
     "uport-connect": "^0.7.6",
+    "web3": "^0.20.5",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

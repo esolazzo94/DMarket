@@ -27,7 +27,19 @@
     </mat-sidenav-content>
   </mat-sidenav-container-->
 
-<div class="login-container">
-  <button mat-button class="login-button" (click)="connect()" color="primary">Connect uPort</button>
-</div>
 
+
+
+<div class="login-container">
+<mat-card class="example-card">
+    <mat-card-header>
+      <mat-card-title>DMarket</mat-card-title>
+    </mat-card-header>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+        <br><br><button mat-raised-button (click)="connect()" color="primary">Connect with uPort</button><br><br>
+        <button mat-raised-button (click)="connect()" color="primary">Register with uPort</button>
+    </mat-card-content>
+  
+  </mat-card>
+</div>

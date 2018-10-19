@@ -2,9 +2,7 @@
   <mat-sidenav
     #sidenav
     class="sidenav"
-    fixedInViewport="true"
-    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-    [mode]="over"
+    fixedInViewport="true" 
     >
     <mat-toolbar color="primary"><button mat-icon-button (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button></mat-toolbar>
     <mat-nav-list>
@@ -18,7 +16,7 @@
     <mat-toolbar color="primary">
       <button  mat-icon-button onclick="this.blur()" (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
       <span>DMarket</span>
-      <span class="spacer"></span>
+      <span class="spacer"></span>      
       <a (click)="reset();loadUser=true;"><img width="70px" height="50px" src="https://ipfs.infura.io/ipfs/QmUEZVTmrRfckVEGpwpuy9LCHPZTW3CQSR5HR2swLiETY3"></a>
       <a (click)="reset();loadUser=true;">{{name}}<br>{{address}}</a>
       <a mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>

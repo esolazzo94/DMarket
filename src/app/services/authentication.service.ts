@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, InjectionToken } from '@angular/core';
 import { Connect, SimpleSigner,  } from 'uport-connect';
+import Web3 from 'web3';
 
 
 declare var uportconnect: any;
@@ -35,3 +36,8 @@ export class AuthenticationService {
     localStorage.removeItem('currentUser');
   }
 }
+
+export const WEB3 = new InjectionToken<Web3>('web3', {
+  providedIn: 'root',
+  factory: () => new Web3(connect.getProvider())
+});
