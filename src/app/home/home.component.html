@@ -19,7 +19,7 @@
       <button  mat-icon-button onclick="this.blur()" (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
       <span>DMarket</span>
       <span class="spacer"></span>
-      <img width="70px" height="50px" src="https://ipfs.infura.io/ipfs/QmUEZVTmrRfckVEGpwpuy9LCHPZTW3CQSR5HR2swLiETY3">{{name}}
+      <a (click)="reset();loadUser=true;"><img width="70px" height="50px" src="https://ipfs.infura.io/ipfs/QmUEZVTmrRfckVEGpwpuy9LCHPZTW3CQSR5HR2swLiETY3">{{name}}</a>
       <a mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
     </mat-toolbar>
     <div #container>
