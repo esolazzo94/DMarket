@@ -18,10 +18,6 @@ declare var uportconnect: any;
 })
 export class HomeComponent {
 
-  /*isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
-    .pipe(
-      map(result => result.matches)
-    );*/
 
   public name;
   public address;
