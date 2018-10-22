@@ -3,6 +3,9 @@ import Web3 from 'web3';
 import { WEB3 } from '../services/authentication.service';
 import * as data from '../../../contract/build/contracts/Market.json';
 
+import { Observable } from 'rxjs';
+
+declare var uportconnect: any;
 
 @Injectable({
   providedIn: 'root'
@@ -25,5 +28,18 @@ export class ContractService {
 
   }
 
+
+  getBalance(address: string): Observable<string> {
+    const decodedId = uportconnect.MNID.decode(address);
+    var decodedAddress = decodedId.address;
+    //var decodedAddress = address;
+
+    return new Observable<string>((observer) =>  { 
+      this.web3.eth.getBalance(decodedAddress,(err,bal) =>{
+        observer.next(this.web3.fromWei(bal.toString(),"ether"));
+
+         })
+    })
+  }
   
 }

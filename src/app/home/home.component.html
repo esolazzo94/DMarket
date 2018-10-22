@@ -19,6 +19,7 @@
       <span class="spacer"></span>      
       <a (click)="reset();loadUser=true;"><img width="70px" height="50px" src="https://ipfs.infura.io/ipfs/QmUEZVTmrRfckVEGpwpuy9LCHPZTW3CQSR5HR2swLiETY3"></a>
       <a (click)="reset();loadUser=true;">{{name}}<br>{{address}}</a>
+      <a *ngIf="balance$">ETH<br>{{balance$ | async}}</a>
       <a mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
     </mat-toolbar>
     <div #container>

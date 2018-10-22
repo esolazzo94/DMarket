@@ -6,9 +6,10 @@ import { Router, ActivatedRoute} from '@angular/router';
 import Web3 from 'web3';
 
 import { AlertService } from '../services/alert.service';
+import { ContractService } from '../services/contract.service';
 import { AuthenticationService, WEB3 } from '../services/authentication.service';
 
-declare var uportconnect: any;
+
 
 
 @Component({
@@ -25,6 +26,7 @@ export class HomeComponent {
   public loadProducts = false;
   public loadPurchases = false;
   public loadSales = false;
+  public balance$: Observable<string>;
 
   reset(){
     this.loadUser = false;
@@ -34,21 +36,28 @@ export class HomeComponent {
   }
     
   constructor(
-    private breakpointObserver: BreakpointObserver,
     private route: ActivatedRoute,
     private router: Router,
     private authenticationService: AuthenticationService,
     private alertService: AlertService,
+    private contractService: ContractService,
     @Inject(WEB3) private web3: Web3) {
       var localUser = JSON.parse(localStorage.getItem('currentUser'));
       this.name = localUser.name;
+      //this.contractService.getBalance(/*localUser.address*/'0x273231D0669268e0D7Fce9C80b302b1F007224B0');
+      
+        //this.balance$ = this.contractService.getBalance('0x273231D0669268e0D7Fce9C80b302b1F007224B0');
+    
 
-      const decodedId = uportconnect.MNID.decode(localUser.address);
-      this.address = decodedId.address;
-
-
-      console.log(web3);
+      //console.log(this.balance$);
     }
+
+    ngOnInit() {
+      var localUser = JSON.parse(localStorage.getItem('currentUser'));
+      this.balance$ = this.contractService.getBalance(localUser.address);
+          
+  }
+
 
   exit() {
     this.authenticationService.logout();  

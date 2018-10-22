@@ -39,5 +39,5 @@ export class AuthenticationService {
 
 export const WEB3 = new InjectionToken<Web3>('web3', {
   providedIn: 'root',
-  factory: () => new Web3(/*connect.getProvider()*/'http://localhost:7545')
+  factory: () => new Web3(connect.getProvider()/*new Web3.providers.HttpProvider('http://localhost:7545')*/)
 });
