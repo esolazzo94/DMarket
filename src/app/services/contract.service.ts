@@ -22,17 +22,26 @@ export class ContractService {
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x97bab90ce5d3b641fd15666c14bd1edf24b3c600');
+      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
       console.log(this.contractInstance);
    }
 
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
-    var address = decodedId.address;
+    //var address = decodedId.address;
+    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var that = this;
     user.avatar.uri;
     user.name;
     var publicKey = await this.createKeyPair();
-
+    this.contractInstance.addUser.sendTransaction(address,publicKey,{ from: address},function(error,result){
+      if(!error) {
+        that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
+      }
+      else {
+        that.alertService.openDialog("Errore nella registazione "+error.message,true);
+      }    
+    });
   }
 
 
@@ -71,7 +80,7 @@ export class ContractService {
 
                 ipfs.files.add(ipfs.types.Buffer.from(spkiString), (err, result) => {
                     console.log(err,"Indirizzo Chiave Pubblica "+ result[0].path);
-                    resolve(result);
+                    resolve(result[0].path);
                 });  
                               
             },function(err){
@@ -92,11 +101,11 @@ export class ContractService {
                 //encryptFile(contents);
                 
             }, function(err) {
-              that.alertService.openDialog("Errore in registrazione: " + err.message);
+              that.alertService.openDialog("Errore in registrazione: " + err.message,true);
             })
     
         }, function(err){
-          that.alertService.openDialog("Errore in registrazione: " + err.message);
+          that.alertService.openDialog("Errore in registrazione: " + err.message,true);
         })
     }); 
 }

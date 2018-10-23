@@ -13,14 +13,17 @@ export interface DialogData {
 export class AlertService {
 
   message: string;
+  errorFlag: boolean;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog) {
+    this.errorFlag = false;
+  }
 
 
 
-  openDialog(message: string) {
+  openDialog(message: string, error: boolean) {
     this.message = message;
-
+    this.errorFlag = error;
     let dialogRef = this.dialog.open(AlertDialog, {
       width: '250px',
       data: {message: this.message }
