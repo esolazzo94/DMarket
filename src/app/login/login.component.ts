@@ -45,9 +45,8 @@ export class LoginComponent implements OnInit {
     //this.alertService.openDialog("Non Implementato");
     this.authenticationService.login()
     .then((user) =>{
-      const decodedId = uportconnect.MNID.decode(user.address);
-      var address = decodedId.address;
-      this.contractService.registerUser(user.name,address);
+      
+      this.contractService.registerUser(user);
 
     }); 
 

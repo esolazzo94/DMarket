@@ -24,6 +24,8 @@
     "@angular/router": "^6.1.0",
     "adm-zip": "^0.4.11",
     "core-js": "^2.5.4",
+    "file-saver": "^2.0.0-rc.4",
+    "ipfs-api": "^25.0.0",
     "openzeppelin-solidity": "^2.0.0-rc.2",
     "parse-json": "^4.0.0",
     "rxjs": "^6.0.0",
