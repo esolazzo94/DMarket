@@ -15,6 +15,7 @@ import { ProductsComponent } from './products/products.component';
 import { SalesComponent } from './sales/sales.component';
 import { PurchasesComponent } from './purchases/purchases.component';
 import { AlertDialog } from './services/alert.service';
+import { MessageDialog } from './services/alert.service';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { AlertDialog } from './services/alert.service';
     ProductsComponent,
     SalesComponent,
     PurchasesComponent,
-    AlertDialog
+    AlertDialog,
+    MessageDialog
   ],
   imports: [
     BrowserModule,
@@ -40,7 +42,7 @@ import { AlertDialog } from './services/alert.service';
     MatIconModule,
     MatListModule
   ],
-  entryComponents: [AppComponent,AlertDialog],
+  entryComponents: [AppComponent,AlertDialog,MessageDialog],
   providers: [],
   bootstrap: [AppComponent]
 })

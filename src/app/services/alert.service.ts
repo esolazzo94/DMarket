@@ -12,25 +12,25 @@ export interface DialogData {
 })
 export class AlertService {
 
-  message: string;
-  errorFlag: boolean;
-
   constructor(public dialog: MatDialog) {
-    this.errorFlag = false;
   }
 
+  openDialog(messageUser: string, error: boolean) {
 
-
-  openDialog(message: string, error: boolean) {
-    this.message = message;
-    this.errorFlag = error;
-    let dialogRef = this.dialog.open(AlertDialog, {
-      width: '250px',
-      data: {message: this.message }
-    });
-
+    if(error) {
+      let dialogRef = this.dialog.open(AlertDialog, {
+        width: '250px',
+        data: {message: messageUser}
+      });
+    }
+    else {
+      let dialogRef = this.dialog.open(MessageDialog, {
+        width: '250px',
+        data: {message: messageUser}
+      });
+    }
+    
   }
-
 }
 
 @Component({
@@ -38,6 +38,16 @@ export class AlertService {
   templateUrl: 'alert.componentdialog.html',
 })
 export class AlertDialog {
+  constructor(
+    public dialogRef: MatDialogRef<AlertDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData) {}
+}
+
+@Component({
+  selector: 'message.componentdialog',
+  templateUrl: 'message.componentdialog.html',
+})
+export class MessageDialog {
   constructor(
     public dialogRef: MatDialogRef<AlertDialog>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData) {}

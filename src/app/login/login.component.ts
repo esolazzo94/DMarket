@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute} from '@angular/router';
+import { ActivatedRoute} from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { AlertService } from '../services/alert.service';
@@ -21,7 +21,6 @@ export class LoginComponent implements OnInit {
 
   constructor(  
         private route: ActivatedRoute,
-        private router: Router,
         private authenticationService: AuthenticationService,
         private alertService: AlertService,
         private contractService: ContractService) {   }
@@ -34,10 +33,7 @@ export class LoginComponent implements OnInit {
   connect() {
     this.authenticationService.login()
     .then((user) =>{
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      var localUser = localStorage.getItem('currentUser');
-      console.log(localUser);
-      this.router.navigate([this.returnUrl]);
+      this.contractService.loginUser(user.address,this.returnUrl);
     });    
   }
 

@@ -8,7 +8,7 @@ import Web3 from 'web3';
 import { AlertService } from '../services/alert.service';
 import { ContractService } from '../services/contract.service';
 import { AuthenticationService, WEB3 } from '../services/authentication.service';
-
+import { User } from '../models/user.model';
 
 
 
@@ -20,7 +20,7 @@ import { AuthenticationService, WEB3 } from '../services/authentication.service'
 export class HomeComponent {
 
 
-  public name;
+  public localUser;
   public address;
   public loadUser = false;
   public loadProducts = false;
@@ -42,12 +42,14 @@ export class HomeComponent {
     private alertService: AlertService,
     private contractService: ContractService,
     @Inject(WEB3) private web3: Web3) {
-      var localUser = JSON.parse(localStorage.getItem('currentUser'));
-      this.name = localUser.name;
+      this.localUser = new User;
+      this.localUser = JSON.parse(localStorage.getItem('currentUser'));
+
+      //console.log(localUser);
       //this.contractService.getBalance(/*localUser.address*/'0x273231D0669268e0D7Fce9C80b302b1F007224B0');
       
         //this.balance$ = this.contractService.getBalance('0x273231D0669268e0D7Fce9C80b302b1F007224B0');
-    
+
 
       //console.log(this.balance$);
     }

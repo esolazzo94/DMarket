@@ -8,19 +8,31 @@ address public children;
 
 struct user {
   string publicKey;
+  string name;
+  string avatar;
   string[] products;
 }
 
 mapping (address => user) private users;
 
-function addUser(address userAddress, string key) public {
+function addUser(address userAddress, string key, string name, string avatar) public {
   users[userAddress].publicKey = key;
+  users[userAddress].name = name;
+  users[userAddress].avatar = avatar;
 }
+
 
 function getUserPublicKey(address userAddress) public view returns (string) {
   return users[userAddress].publicKey;
 }
 
+function getUserName(address userAddress) public view returns (string) {
+  return users[userAddress].name;
+}
+
+function getUserAvatar(address userAddress) public view returns (string) {
+  return users[userAddress].avatar;
+}
 
 function getOwner() public view returns (address) {
   return owner;
