@@ -11,6 +11,7 @@ struct user {
   string name;
   string avatar;
   string[] products;
+  bool blocked;
 }
 
 mapping (address => user) private users;
@@ -19,6 +20,7 @@ function addUser(address userAddress, string key, string name, string avatar) pu
   users[userAddress].publicKey = key;
   users[userAddress].name = name;
   users[userAddress].avatar = avatar;
+  users[userAddress].blocked = false;
 }
 
 
@@ -30,12 +32,23 @@ function getUserName(address userAddress) public view returns (string) {
   return users[userAddress].name;
 }
 
+function getUserFlagBlock(address userAddress) public view returns (bool) {
+  return users[userAddress].blocked;
+}
+
 function getUserAvatar(address userAddress) public view returns (string) {
   return users[userAddress].avatar;
 }
 
 function getOwner() public view returns (address) {
   return owner;
+}
+
+function blockUser(address user, string product, address buyer) public {
+  var requesterAddress = getEscrowAddress(product,buyer);
+  if (msg.sender == requesterAddress) {
+    users[user].blocked = true;
+  }
 }
 
 struct product {
@@ -74,7 +87,9 @@ function getProduct(string hashProduct) public returns(string) {
 
 //function deposit(address payee) public payable
 
-
+function unblockUser (address user) restricted public {
+  users[user].blocked = false;
+}
 
 
 constructor() public {

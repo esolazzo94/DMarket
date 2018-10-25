@@ -25,14 +25,14 @@ export class ContractService {
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x962f0Fa86004B264596b793b1b25D621765aAeF3');
+      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
       console.log(this.contractInstance);
    }
 
    loginUser(addressLogin: string, returnUrl: string) {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
-    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
+    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -41,25 +41,32 @@ export class ContractService {
         that.alertService.openDialog("Utente non registrato",true);
       }
       else if (!error) {
-        that.contractInstance.getUserName(address,{ from: address},function(error,result){
-          if (!error) {
-            loginUser.name = result;
-            that.contractInstance.getUserAvatar(address,{ from: address},function(error,result){
+        that.contractInstance.getUserFlagBlock(address, function(error,result){
+          if (!result) {
+            that.contractInstance.getUserName(address,{ from: address},function(error,result){
               if (!error) {
-                loginUser.avatar = result;
-                localStorage.setItem('currentUser', JSON.stringify(loginUser));
-                var localUser = localStorage.getItem('currentUser');
-                that.router.navigate([returnUrl]);
+                loginUser.name = result;
+                that.contractInstance.getUserAvatar(address,{ from: address},function(error,result){
+                  if (!error) {
+                    loginUser.avatar = result;
+                    localStorage.setItem('currentUser', JSON.stringify(loginUser));
+                    var localUser = localStorage.getItem('currentUser');
+                    that.router.navigate([returnUrl]);
+                  }
+                  else {
+                    that.alertService.openDialog("Errore nella registrazione",true);
+                  }
+                });
               }
               else {
                 that.alertService.openDialog("Errore nella registrazione",true);
               }
             });
-          }
+          } 
           else {
-            that.alertService.openDialog("Errore nella registrazione",true);
+            that.alertService.openDialog("Utente Bloccato.\n Contatta un amministratore.",true);
           }
-        });        
+        })       
       }
       else {
         that.alertService.openDialog("Errore nella registrazione",true);
@@ -70,7 +77,7 @@ export class ContractService {
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
-    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
+    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     
     this.contractInstance.getUserPublicKey(address,{ from: address},function(error,result){

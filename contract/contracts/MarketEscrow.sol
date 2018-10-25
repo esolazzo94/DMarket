@@ -12,6 +12,7 @@ uint256 private expiration;
 address private payee;
 uint256 private depositPayee;
 uint256 private depositBuyer;
+Market private marketIstance;
     
 constructor(address addr) public {
     hashFile = 'null';
@@ -19,6 +20,7 @@ constructor(address addr) public {
     marketAddress = addr;
     depositPayee = 0;
     depositBuyer = 0;
+    marketIstance = Market(marketAddress);
     }    
     
 function setPayee(address p) public onlyPrimary() {
@@ -43,9 +45,9 @@ function depositFromBuyer() public payable onlyPrimary() {
 
 function withdrawalAllowed(address payee) public view returns (bool) {
 
-        Market m = Market(marketAddress);
         
-        address h = m.getEscrowAddress(hashFile,this.primary());
+        
+        address h = marketIstance.getEscrowAddress(hashFile,this.primary());
         //if(stringsEqual(hashFile,h)) return true;
         if (h == address(this)) {           
             return true;
@@ -63,25 +65,14 @@ function withdraw(address payee) public onlyPrimary() {
     super.withdraw(payee);
   }
 
+function blockUser(address payee) public onlyPrimary() {
+ marketIstance.blockUser(payee,hashFile,this.primary());
+}
+
 function resetDeposit() private {
     depositPayee = 0;
     depositBuyer = 0;
 }
-
-
-/*
-function stringsEqual(string storage _a, string memory _b) internal returns (bool) {
-		bytes storage a = bytes(_a);
-		bytes memory b = bytes(_b);
-		if (a.length != b.length)
-			return false;
-		// @todo unroll this loop
-		for (uint i = 0; i < a.length; i ++)
-			if (a[i] != b[i])
-				return false;
-		return true;
-	}
-*/
 
 function refundBuyer(address payee) public onlyPrimary() {
     if (!withdrawalAllowed(payee)){
