@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from  './material/material.module';
 
@@ -48,7 +49,9 @@ import { RemoveProductComponent } from './remove-product/remove-product.componen
     MatButtonModule,
     MatSidenavModule,
     MatIconModule,
-    MatListModule
+    MatListModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   entryComponents: [AppComponent,AlertDialog,MessageDialog],
   providers: [],

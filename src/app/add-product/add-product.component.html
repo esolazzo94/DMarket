@@ -1,3 +1,36 @@
-<p>
-  add-product works!
-</p>
+<mat-horizontal-stepper linear #stepper>
+    <mat-step [stepControl]="firstFormGroup">
+      <form [formGroup]="firstFormGroup">
+        <ng-template matStepLabel>Aggiungi descrizione prodotto</ng-template>
+        <mat-form-field style="width: 100%;">
+          <textarea matInput placeholder="Descrizione" formControlName="firstCtrl" required></textarea>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext>Avanti</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="secondFormGroup" >
+      <form [formGroup]="secondFormGroup">
+        <ng-template matStepLabel>Inserisci prezzo</ng-template>
+        <mat-form-field>
+          <input type="number" matInput placeholder="Prezzo" formControlName="secondCtrl" required>
+        </mat-form-field>Ether
+        <div>
+          <button mat-button matStepperPrevious>Indietro</button>
+          <button mat-button matStepperNext>Avanti</button>
+        </div>
+      </form>
+    </mat-step>
+
+
+
+    <mat-step>
+      <ng-template matStepLabel>Completato</ng-template>
+      Dati Inseriti. Clicca su Invia Prodotto.
+      <div>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+        <button mat-button (click)="send()">Invia Prodotto</button>
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
