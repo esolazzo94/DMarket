@@ -25,14 +25,14 @@ export class ContractService {
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x115fF25B669825bB8209ff9DcD5863D96FfC8C79');
+      this.contractInstance = contract.at('0x962f0fa86004b264596b793b1b25d621765aaef3');
       console.log(this.contractInstance);
    }
 
    loginUser(addressLogin: string, returnUrl: string) {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -62,7 +62,7 @@ export class ContractService {
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     
     this.contractInstance.getUser(address,{ from: address},function(error,result){

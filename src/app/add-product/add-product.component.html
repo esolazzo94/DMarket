@@ -23,7 +23,18 @@
       </form>
     </mat-step>
 
-
+    <mat-step>    
+        <ng-template matStepLabel>Specifica il file</ng-template>  
+        <form [formGroup]="thirdFormGroup" >    
+          <input (change)="hashFile($event)" hidden id="input-file-id" multiple type="file" />
+          <label for="input-file-id" class="mat-raised-button" >Scegli File</label>     
+          <br><br>
+          <div>
+          <button mat-button matStepperPrevious>Indietro</button>
+          <button disabled={{!isFileUploaded}} mat-button disabled matStepperNext>Avanti</button>
+        </div>  
+      </form>   
+    </mat-step>
 
     <mat-step>
       <ng-template matStepLabel>Completato</ng-template>
