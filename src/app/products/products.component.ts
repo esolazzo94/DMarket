@@ -7,7 +7,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProductsComponent implements OnInit {
 
-  constructor() { }
+  public loadDetail = false;
+  public loadAdd = false;
+  public loadRemove = false;
+
+
+  reset(){
+    this.loadDetail = false;
+    this.loadAdd = false;
+    this.loadRemove = false;
+  }
+
+  constructor() {
+    this.reset();
+    this.loadDetail = true;
+   }
 
   ngOnInit() {
   }

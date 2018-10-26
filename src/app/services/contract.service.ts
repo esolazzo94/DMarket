@@ -65,7 +65,7 @@ export class ContractService {
     var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     
-    this.contractInstance.getUserPublicKey(address,{ from: address},function(error,result){
+    this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
         that.alertService.openDialog("Utente già registrato",true);
         

@@ -17,6 +17,9 @@ import { PurchasesComponent } from './purchases/purchases.component';
 import { AlertDialog } from './services/alert.service';
 import { MessageDialog } from './services/alert.service';
 import { MarketComponent } from './market/market.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { AddProductComponent } from './add-product/add-product.component';
+import { RemoveProductComponent } from './remove-product/remove-product.component';
 
 
 @NgModule({
@@ -30,7 +33,10 @@ import { MarketComponent } from './market/market.component';
     PurchasesComponent,
     AlertDialog,
     MessageDialog,
-    MarketComponent
+    MarketComponent,
+    ProductDetailComponent,
+    AddProductComponent,
+    RemoveProductComponent
   ],
   imports: [
     BrowserModule,
