@@ -6,11 +6,18 @@ address private owner;
 
 address public children;
 
+constructor() {
+  owner = msg.sender;
+  productsCount = 0;
+}
+
+
 struct user {
   string publicKey;
   string name;
   string avatar;
   string[] products;
+  uint256 productsLenght;
   bool blocked;
 }
 
@@ -24,20 +31,14 @@ function addUser(address userAddress, string key, string name, string avatar) pu
 }
 
 
-function getUserPublicKey(address userAddress) public view returns (string) {
-  return users[userAddress].publicKey;
+function getUser(address userAddress) public view returns (string,string,string,bool) {
+  return (users[userAddress].publicKey,users[userAddress].name,users[userAddress].avatar,users[userAddress].blocked);
 }
 
-function getUserName(address userAddress) public view returns (string) {
-  return users[userAddress].name;
-}
 
-function getUserFlagBlock(address userAddress) public view returns (bool) {
-  return users[userAddress].blocked;
-}
 
-function getUserAvatar(address userAddress) public view returns (string) {
-  return users[userAddress].avatar;
+function getUserProduct(address userAddress, uint256 index) returns(string) {
+  return users[userAddress].products[index];
 }
 
 function getOwner() public view returns (address) {
@@ -60,7 +61,8 @@ struct product {
 }
 
 mapping (string => product) private products;
-
+mapping (uint => string) productsIndex; //doSomeStuff(accountBalances[accountIndex[i]]);
+uint productsCount;
 
 function purchase(string hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
@@ -70,6 +72,7 @@ function purchase(string hashFile, address escrowAddress) {
 function getEscrowAddress(string hashFile, address buyer) returns(address) {
   return products[hashFile].purchase[buyer];
 }
+
 
 function addProduct(string description, string hashProduct, uint256 price) public /*payable*/ {
   product memory p;
@@ -85,16 +88,21 @@ function getProduct(string hashProduct) public returns(string) {
   return products[hashProduct].description;
 }
 
+function deleteProduct(address user, string hashProduct, uint256 index) public {
+  for (uint i = index; i<users[user].products.length-1; i++){
+      users[user].products[i] = users[user].products[i+1];
+  }
+  delete users[user].products[users[user].products.length-1];
+  users[user].products.length--;
+  delete products[hashProduct];
+}
+
 //function deposit(address payee) public payable
 
 function unblockUser (address user) restricted public {
   users[user].blocked = false;
 }
 
-
-constructor() public {
-    owner = msg.sender;
-  }
   
 function kill() restricted public {
     selfdestruct(msg.sender);

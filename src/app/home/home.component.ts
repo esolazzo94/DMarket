@@ -22,6 +22,7 @@ export class HomeComponent {
 
   public localUser;
   public address;
+  public loadMarket = false;
   public loadUser = false;
   public loadProducts = false;
   public loadPurchases = false;
@@ -29,6 +30,7 @@ export class HomeComponent {
   public balance$: Observable<string>;
 
   reset(){
+    this.loadMarket = false; 
     this.loadUser = false;
     this.loadProducts = false;
     this.loadPurchases = false;

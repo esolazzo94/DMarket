@@ -25,7 +25,7 @@ export class ContractService {
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
+      this.contractInstance = contract.at('0x115fF25B669825bB8209ff9DcD5863D96FfC8C79');
       console.log(this.contractInstance);
    }
 
@@ -36,40 +36,25 @@ export class ContractService {
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
-    this.contractInstance.getUserPublicKey(address,{ from: address},function(error,result){
-      if (result === "") {
+    that.contractInstance.getUser(address,{ from: address},function(error,result){
+      if (result[0] === "") {
         that.alertService.openDialog("Utente non registrato",true);
       }
       else if (!error) {
-        that.contractInstance.getUserFlagBlock(address, function(error,result){
-          if (!result) {
-            that.contractInstance.getUserName(address,{ from: address},function(error,result){
-              if (!error) {
-                loginUser.name = result;
-                that.contractInstance.getUserAvatar(address,{ from: address},function(error,result){
-                  if (!error) {
-                    loginUser.avatar = result;
-                    localStorage.setItem('currentUser', JSON.stringify(loginUser));
-                    var localUser = localStorage.getItem('currentUser');
-                    that.router.navigate([returnUrl]);
-                  }
-                  else {
-                    that.alertService.openDialog("Errore nella registrazione",true);
-                  }
-                });
-              }
-              else {
-                that.alertService.openDialog("Errore nella registrazione",true);
-              }
-            });
+          if (!result[3]) {
+                loginUser.name = result[1];
+                loginUser.avatar = result[2];
+                loginUser.publicKey = result[0];
+                localStorage.setItem('currentUser', JSON.stringify(loginUser));
+                var localUser = localStorage.getItem('currentUser');
+                that.router.navigate([returnUrl]);                 
           } 
           else {
             that.alertService.openDialog("Utente Bloccato.\n Contatta un amministratore.",true);
-          }
-        })       
+          }          
       }
       else {
-        that.alertService.openDialog("Errore nella registrazione",true);
+        that.alertService.openDialog("Errore nel login\n"+error.message,true);
       }
     }); 
    }
@@ -81,7 +66,7 @@ export class ContractService {
     var that = this;
     
     this.contractInstance.getUserPublicKey(address,{ from: address},function(error,result){
-      if (result !== "") {
+      if (result[0] !== "") {
         that.alertService.openDialog("Utente già registrato",true);
         
       }

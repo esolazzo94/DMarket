@@ -6,10 +6,11 @@
     >
     <mat-toolbar color="primary"><button mat-icon-button (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button></mat-toolbar>
     <mat-nav-list>
-      <a mat-list-item (click)="reset();loadProducts=true;sidenav.toggle()"><mat-icon>account_circle</mat-icon>Miei Prodotti</a>
-      <a mat-list-item (click)="reset();loadSales=true;sidenav.toggle()"><mat-icon>euro_symbol</mat-icon> Vendite</a>
-      <a mat-list-item (click)="reset();loadPurchases=true;sidenav.toggle()"><mat-icon>shopping_cart</mat-icon>Acquisti</a>
-      <a style="position: absolute;bottom: 0;" mat-list-item (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
+      <a mat-list-item (click)="reset();loadMarket=true;sidenav.toggle()"><mat-icon>shopping_basket</mat-icon>&nbsp;&nbsp;Market</a>
+      <a mat-list-item (click)="reset();loadProducts=true;sidenav.toggle()"><mat-icon>account_circle</mat-icon>&nbsp;&nbsp;Miei Prodotti</a>
+      <a mat-list-item (click)="reset();loadSales=true;sidenav.toggle()"><mat-icon>euro_symbol</mat-icon>&nbsp;&nbsp;Vendite</a>
+      <a mat-list-item (click)="reset();loadPurchases=true;sidenav.toggle()"><mat-icon>shopping_cart</mat-icon>&nbsp;&nbsp;Acquisti</a>
+      <a style="position: absolute;bottom: 0;" mat-list-item (click)="exit()"><mat-icon>cancel</mat-icon>&nbsp;&nbsp;Esci</a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
@@ -18,16 +19,18 @@
       <span>DMarket</span>
       <span class="spacer"></span>      
       <a (click)="reset();loadUser=true;"><img width="70px" height="50px" src={{localUser.avatar}}></a>
+      &nbsp;&nbsp;
       <a (click)="reset();loadUser=true;">{{localUser.name}}<br>{{localUser.address}}</a>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <a *ngIf="balance$">ETH<br>{{balance$ | async}}</a>
-      <a mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
+      <a (click)="reset();loadUser=true;" *ngIf="balance$">ETH<br>{{balance$ | async}}</a>
+      <a (click)="reset();loadUser=true;" mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
     </mat-toolbar>
     <div #container>
+      <app-market class="containers" *ngIf="loadMarket"></app-market>
       <app-user class="containers" *ngIf="loadUser"></app-user>
       <app-products class="containers" *ngIf="loadProducts"></app-products>
       <app-purchases class="containers" *ngIf="loadPurchases"></app-purchases>
-      <app-sales class="containers" *ngIf="loadSales"></app-sales>
+      <app-sales class="containers" *ngIf="loadSales"></app-sales>     
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

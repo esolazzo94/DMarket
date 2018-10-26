@@ -16,6 +16,7 @@ import { SalesComponent } from './sales/sales.component';
 import { PurchasesComponent } from './purchases/purchases.component';
 import { AlertDialog } from './services/alert.service';
 import { MessageDialog } from './services/alert.service';
+import { MarketComponent } from './market/market.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { MessageDialog } from './services/alert.service';
     SalesComponent,
     PurchasesComponent,
     AlertDialog,
-    MessageDialog
+    MessageDialog,
+    MarketComponent
   ],
   imports: [
     BrowserModule,
