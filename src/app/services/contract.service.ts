@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import { Observable } from 'rxjs';
 import { AlertService } from '../services/alert.service';
 import { User } from '../models/user.model';
+import { Product } from '../models/product.model';
 
 declare var uportconnect: any;
 declare var IpfsApi: any;
@@ -45,6 +46,7 @@ export class ContractService {
                 loginUser.name = result[1];
                 loginUser.avatar = result[2];
                 loginUser.publicKey = result[0];
+                loginUser.productTotalLenght = result[4].toNumber();
                 localStorage.setItem('currentUser', JSON.stringify(loginUser));
                 var localUser = localStorage.getItem('currentUser');
                 that.router.navigate([returnUrl]);                 
@@ -59,12 +61,50 @@ export class ContractService {
     }); 
    }
 
+   updateUser(localUser:User) {
+    var that = this;
+    this.contractInstance.getUser(localUser.address,{ from: localUser.address},function(error,result){
+      if (result[0] === "") {
+        that.alertService.openDialog("Utente non registrato",true);
+      }
+      else if (!error) {
+          if (!result[3]) {
+                localUser.name = result[1];
+                localUser.avatar = result[2];
+                localUser.publicKey = result[0];
+                localUser.productTotalLenght = result[4].toNumber();
+                localStorage.setItem('currentUser', JSON.stringify(localUser));                
+          } 
+          else {
+            that.alertService.openDialog("Utente Bloccato.\n Contatta un amministratore.",true);
+          }          
+      }
+      else {
+        that.alertService.openDialog("Errore nel login\n"+error.message,true);
+      }
+    }); 
+   }
+
+   getUserProducts(localUser:User) {
+    var products = new Array<Product>();
+    var that = this;
+    this.contractInstance.addProduct.sendTransaction("a", "hash",1,{ from: localUser.address,gas:3000000 },function(error,result) {
+
+      that.contractInstance.getProduct("hash",{ from: localUser.address},function(error,result){
+        console.log(result);
+      });
+    })
+    
+    
+    
+    
+   }
+
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
     var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
-    
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
         that.alertService.openDialog("Utente già registrato",true);
