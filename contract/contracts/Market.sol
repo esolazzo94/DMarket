@@ -28,11 +28,12 @@ function addUser(address userAddress, string key, string name, string avatar) pu
   users[userAddress].name = name;
   users[userAddress].avatar = avatar;
   users[userAddress].blocked = false;
+  users[userAddress].productsLenght = 0;  
 }
 
 
-function getUser(address userAddress) public view returns (string,string,string,bool) {
-  return (users[userAddress].publicKey,users[userAddress].name,users[userAddress].avatar,users[userAddress].blocked);
+function getUser(address userAddress) public view returns (string,string,string,bool,uint256) {
+  return (users[userAddress].publicKey,users[userAddress].name,users[userAddress].avatar,users[userAddress].blocked,users[userAddress].productsLenght);
 }
 
 
@@ -58,6 +59,7 @@ struct product {
   uint256 price;
   mapping (address => address) purchase;
   address[] purchaseLUT;
+  uint256 purchaseLUTLenght;
 }
 
 mapping (string => product) private products;
@@ -75,17 +77,15 @@ function getEscrowAddress(string hashFile, address buyer) returns(address) {
 
 
 function addProduct(string description, string hashProduct, uint256 price) public /*payable*/ {
-  product memory p;
-  p.description = description;
-  //p.hashAddress = hashAddress;
-  p.seller = msg.sender;
-  p.price = price;
-  //p.deposit = msg.value;
-  products[hashProduct] = p;
+  products[hashProduct].description = description;
+  products[hashProduct].seller = msg.sender;
+  products[hashProduct].price = price;
+  users[msg.sender].productsLenght++;
+  users[msg.sender].products.push(hashProduct);
 }
 
-function getProduct(string hashProduct) public returns(string) {
-  return products[hashProduct].description;
+function getProduct(string hashProduct) public returns(string,address,uint256,uint256) {
+  return (products[hashProduct].description,products[hashProduct].seller,products[hashProduct].price,products[hashProduct].purchaseLUTLenght);
 }
 
 function deleteProduct(address user, string hashProduct, uint256 index) public {
