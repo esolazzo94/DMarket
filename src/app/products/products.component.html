@@ -4,7 +4,7 @@
 </mat-card>
 <mat-card>
     <app-product-detail *ngIf="loadDetail"></app-product-detail>
-    <app-add-product *ngIf="loadAdd"></app-add-product>
+    <app-add-product *ngIf="loadAdd" (messageEvent)="receiveMessage($event)"></app-add-product>
     <app-remove-product *ngIf="loadRemove"></app-remove-product>
 </mat-card>
 

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AddProductComponent } from '../add-product/add-product.component'
 
 @Component({
   selector: 'app-products',
@@ -6,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent implements OnInit {
-
+  
   public loadDetail = false;
   public loadAdd = false;
   public loadRemove = false;
@@ -19,11 +20,16 @@ export class ProductsComponent implements OnInit {
   }
 
   constructor() {
-    this.reset();
-    this.loadDetail = true;
    }
 
   ngOnInit() {
+    this.reset();
+    this.loadDetail = true;
+  }
+
+  receiveMessage($event) {
+    this.reset();
+    this.loadDetail = $event;
   }
 
 }

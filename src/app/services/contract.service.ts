@@ -148,6 +148,27 @@ export class ContractService {
 }
 
 
+async addProduct(description:string, price:number, hash:string) {
+  var localUser = new User;
+  var that = this;
+  localUser = JSON.parse(localStorage.getItem('currentUser'));
+  var weiPrice = this.web3.toWei(price, 'ether');
+  try {
+    var result = await this.contractInstance.addProduct(description,hash,weiPrice,{ from: localUser.address,gas:3000000});
+    if (result) {
+     that.alertService.openDialog("Prodotto Aggiunto",false);
+    }  
+    else {
+    that.alertService.openDialog("Impossibile aggiungere prodotto",true);
+    }
+  }
+  catch {
+    that.alertService.openDialog("Impossibile aggiungere prodotto",true);
+  }
+  
+}
+
+
   getBalance(address: string): Observable<string> {
     /*const decodedId = uportconnect.MNID.decode(address);
     var decodedAddress = decodedId.address;*/

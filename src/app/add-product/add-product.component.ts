@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertService } from '../services/alert.service';
+import { ContractService } from '../services/contract.service';
 
 @Component({
   selector: 'app-add-product',
@@ -14,10 +15,13 @@ export class AddProductComponent implements OnInit {
   thirdFormGroup: FormGroup;
   isFileUploaded = false;
   
+  @Output() messageEvent = new EventEmitter<boolean>();
+
   private hash:string;
 
   constructor(private _formBuilder: FormBuilder,
-    private alertService: AlertService,) { }
+    private alertService: AlertService,
+    private contractService: ContractService) { }
 
   ngOnInit() {
     this.firstFormGroup = this._formBuilder.group({
@@ -32,10 +36,9 @@ export class AddProductComponent implements OnInit {
     this.hash = null;
   }
 
-  send() {
-    console.log(this.firstFormGroup.value.firstCtrl);
-    console.log(this.secondFormGroup.value.secondCtrl);
-    console.log(this.hash);
+  async send() {
+    await this.contractService.addProduct(this.firstFormGroup.value.firstCtrl,this.secondFormGroup.value.secondCtrl,this.hash);
+    this.messageEvent.emit(true);
   }
 
   hashFile(event) {

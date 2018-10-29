@@ -73,6 +73,11 @@ function getEscrowAddress(string hashFile, address buyer) returns(address) {
   return products[hashFile].purchase[buyer];
 }
 
+function existProduct(string hashFile) public view returns (bool){
+  if (products[hashFile].description == "") return false;
+  else return true;
+}
+
 
 function addProduct(string description, string hashProduct, uint256 price) public /*payable*/ {
   product memory p;
