@@ -194,7 +194,7 @@ async addProduct(description:string, price:number, hash:string) {
   localUser = JSON.parse(localStorage.getItem('currentUser'));
   var weiPrice = this.web3.toWei(price, 'ether');
   try {
-    var result = await this.contractInstance.addProduct(description,hash,weiPrice,{ from: localUser.address,gas:3000000});
+    var result = await this.contractInstance.addProduct(description,this.web3.fromAscii(hash),weiPrice,{ from: localUser.address,gas:3000000});
     if (result) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
     }  

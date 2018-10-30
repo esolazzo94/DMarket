@@ -5,8 +5,8 @@ import './Market.sol';
 
 contract MarketEscrow is ConditionalEscrow {
     
-string private hashFile;
-string private hashEncryptedFile;
+bytes32 private hashFile;
+bytes32 private hashEncryptedFile;
 address private marketAddress; 
 uint256 private expiration;
 address private payee;
@@ -27,14 +27,14 @@ function setPayee(address p) public onlyPrimary() {
  payee = p;
 }
 
-function setFile(string hFile, string hEncryptedFile) public onlyPayee() payable {
+function setFile(bytes32 hFile, bytes32 hEncryptedFile) public onlyPayee() payable {
     require(depositPayee == 0);
     hashFile = hFile;
     hashEncryptedFile = hEncryptedFile;
     depositPayee = msg.value;
 }
 
-function getHashAddress() public view onlyPrimary() returns(string) {
+function getHashAddress() public view onlyPrimary() returns(bytes32) {
     return hashEncryptedFile;
 }
 

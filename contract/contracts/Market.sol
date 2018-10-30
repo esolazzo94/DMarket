@@ -16,7 +16,7 @@ struct user {
   string publicKey;
   string name;
   string avatar;
-  string[] products;
+  bytes32[] products;
   uint256 productsLenght;
   bool blocked;
 }
@@ -38,7 +38,7 @@ function getUser(address userAddress) public view returns (string,string,string,
 
 
 
-function getUserProduct(address userAddress, uint256 index) returns(string) {
+function getUserProduct(address userAddress, uint256 index) returns(bytes32) {
   return users[userAddress].products[index];
 }
 
@@ -46,7 +46,7 @@ function getOwner() public view returns (address) {
   return owner;
 }
 
-function blockUser(address user, string product, address buyer) public {
+function blockUser(address user, bytes32 product, address buyer) public {
   var requesterAddress = getEscrowAddress(product,buyer);
   if (msg.sender == requesterAddress) {
     users[user].blocked = true;
@@ -62,16 +62,16 @@ struct product {
   uint256 purchaseLUTLenght;
 }
 
-mapping (string => product) private products;
-mapping (uint => string) productsIndex; //doSomeStuff(accountBalances[accountIndex[i]]);
+mapping (bytes32 => product) private products;
+mapping (uint => bytes32) productsIndex; //doSomeStuff(accountBalances[accountIndex[i]]);
 uint productsCount;
 
-function purchase(string hashFile, address escrowAddress) {
+function purchase(bytes32 hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
   products[hashFile].purchaseLUT.push(msg.sender);
 }
 
-function getEscrowAddress(string hashFile, address buyer) returns(address) {
+function getEscrowAddress(bytes32 hashFile, address buyer) returns(address) {
   return products[hashFile].purchase[buyer];
 }
 
@@ -81,7 +81,7 @@ function getEscrowAddress(string hashFile, address buyer) returns(address) {
 }*/
 
 
-function addProduct(string description, string hashProduct, uint256 price) public /*payable*/ {
+function addProduct(string description, bytes32 hashProduct, uint256 price) public /*payable*/ {
   products[hashProduct].description = description;
   products[hashProduct].seller = msg.sender;
   products[hashProduct].price = price;
@@ -89,11 +89,11 @@ function addProduct(string description, string hashProduct, uint256 price) publi
   users[msg.sender].products.push(hashProduct);
 }
 
-function getProduct(string hashProduct) public returns(string,address,uint256,uint256) {
+function getProduct(bytes32 hashProduct) public returns(string,address,uint256,uint256) {
   return (products[hashProduct].description,products[hashProduct].seller,products[hashProduct].price,products[hashProduct].purchaseLUTLenght);
 }
 
-function deleteProduct(address user, string hashProduct, uint256 index) public {
+function deleteProduct(address user, bytes32 hashProduct, uint256 index) public {
   for (uint i = index; i<users[user].products.length-1; i++){
       users[user].products[i] = users[user].products[i+1];
   }
