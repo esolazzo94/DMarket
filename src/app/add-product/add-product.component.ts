@@ -17,7 +17,7 @@ export class AddProductComponent implements OnInit {
   
   @Output() messageEvent = new EventEmitter<boolean>();
 
-  private hash:string;
+  private hash:any;
 
   constructor(private _formBuilder: FormBuilder,
     private alertService: AlertService,
@@ -50,7 +50,7 @@ export class AddProductComponent implements OnInit {
       reader.onloadend = () => {
         var contents = reader.result;
       var hash = crypto.subtle.digest('SHA-256',contents).then(hashed=>{
-        this.hash = this.convertArrayBufferToHexaDecimal(hashed);
+        this.hash = hashed;
         this.isFileUploaded = true;
       });
       }    

@@ -19,7 +19,6 @@ declare var IpfsApi: any;
 export class ContractService {
 
   private contractInstance;
-  private hash:string;
 
   constructor(
     private alertService: AlertService,
@@ -27,19 +26,19 @@ export class ContractService {
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
+      this.contractInstance = contract.at('0x962f0fa86004b264596b793b1b25d621765aaef3');
       console.log(this.contractInstance);
    }
 
    loginUser(addressLogin: string, returnUrl: string) {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
     that.contractInstance.getUser(address,{ from: address},function(error,result){
-      if (result[0] === "") {
+      if (result === "") {
         that.alertService.openDialog("Utente non registrato",true);
       }
       else if (!error) {
@@ -62,7 +61,9 @@ export class ContractService {
     }); 
    }
 
-   updateUser(localUser:User) {
+   updateUser() {
+    var localUser = new User;
+    localUser = JSON.parse(localStorage.getItem('currentUser'));
     var that = this;
     this.contractInstance.getUser(localUser.address,{ from: localUser.address},function(error,result){
       if (result[0] === "") {
@@ -86,23 +87,25 @@ export class ContractService {
     }); 
    }
 
-   getUserProducts(localUser:User) {
+   getUserProducts() {
+    var localUser = new User;
+    localUser = JSON.parse(localStorage.getItem('currentUser'));
     var products = new Array<Product>();
     var that = this;
-    that.contractInstance.getProduct(this.hash,{ from: localUser.address },function(error,result){
-        console.log(result[0]);
-      });
-    
-    
-    
-    
-    
+    for (var i=0; i<localUser.productTotalLenght; i++) {
+      this.contractInstance.getUserProduct.call(localUser.address,i,{ from: localUser.address },function(error,result){
+        that.contractInstance.products.call(result,{ from: localUser.address },function(error,result){
+          console.log(result);
+        });
+      })
+      
+    }   
    }
 
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
@@ -187,14 +190,13 @@ export class ContractService {
 }
 
 
-async addProduct(description:string, price:number, hash:string) {
+async addProduct(description:string, price:number, hash:any) {
   var localUser = new User;
   var that = this;
   localUser = JSON.parse(localStorage.getItem('currentUser'));
   var weiPrice = this.web3.toWei(price, 'ether');
   try {
-    this.hash= hash;
-    var result = await this.contractInstance.addProduct(description,hash,weiPrice,{ from: localUser.address,gas:3000000});
+    var result = await this.contractInstance.addProduct.sendTransaction(description, this.web3.fromAscii(String.fromCharCode.apply(null, new Uint8Array(hash))),weiPrice,{ from: localUser.address,gas:3000000});
     if (result) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
     }  

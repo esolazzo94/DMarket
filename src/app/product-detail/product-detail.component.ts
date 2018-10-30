@@ -18,12 +18,11 @@ export class ProductDetailComponent implements OnInit {
    }
 
   ngOnInit() {
-    this.localUser = new User;
-    this.localUser = JSON.parse(localStorage.getItem('currentUser'));
-    this.contractService.updateUser(this.localUser);
-    this.localUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    this.contractService.updateUser();
+    
 
-    this.contractService.getUserProducts(this.localUser);
+    this.contractService.getUserProducts();
   }
 
 }

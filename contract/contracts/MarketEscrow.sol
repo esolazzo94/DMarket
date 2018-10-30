@@ -26,9 +26,9 @@ function setPayee(address p) public onlyPrimary() {
  payee = p;
 }
 
-function setFile(string hFileString, string hEncryptedFileString) public onlyPayee() payable {
-    bytes32 hFile = marketIstance.convert(hFileString);
-    bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
+function setFile(bytes32 hFile, bytes32 hEncryptedFile) public onlyPayee() payable {
+    //bytes32 hFile = marketIstance.convert(hFileString);
+    //bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
     require(depositPayee == 0);
     hashFile = hFile;
     hashEncryptedFile = hEncryptedFile;
