@@ -17,11 +17,9 @@ export class ProductDetailComponent implements OnInit {
 
    }
 
-  ngOnInit() {
-    
-    this.contractService.updateUser();
-    
-
+  async ngOnInit() {
+    var user = await this.contractService.updateUser();
+    localStorage.setItem('currentUser', JSON.stringify(user)); 
     this.contractService.getUserProducts();
   }
 

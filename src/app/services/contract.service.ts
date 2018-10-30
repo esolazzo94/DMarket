@@ -10,6 +10,7 @@ import { AlertService } from '../services/alert.service';
 import { User } from '../models/user.model';
 import { Product } from '../models/product.model';
 
+
 declare var uportconnect: any;
 declare var IpfsApi: any;
 
@@ -61,8 +62,9 @@ export class ContractService {
     }); 
    }
 
-   updateUser() {
-    var localUser = new User;
+   async updateUser():Promise<User> {
+    return new Promise<User>(resolve=>{
+      var localUser = new User;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
     var that = this;
     this.contractInstance.getUser(localUser.address,{ from: localUser.address},function(error,result){
@@ -75,16 +77,19 @@ export class ContractService {
                 localUser.avatar = result[2];
                 localUser.publicKey = result[0];
                 localUser.productTotalLenght = result[4].toNumber();
-                localStorage.setItem('currentUser', JSON.stringify(localUser));                
+               resolve(localUser);              
           } 
           else {
             that.alertService.openDialog("Utente Bloccato.\n Contatta un amministratore.",true);
+            resolve(null);
           }          
       }
       else {
         that.alertService.openDialog("Errore nel login\n"+error.message,true);
+        resolve(null);
       }
     }); 
+    })
    }
 
    getUserProducts() {
@@ -190,7 +195,7 @@ export class ContractService {
 }
 
 
-async addProduct(description:string, price:number, hash:any) {
+async addProduct(description:string, price:number, hash:any):Promise<boolean> {
   var localUser = new User;
   var that = this;
   localUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -199,13 +204,16 @@ async addProduct(description:string, price:number, hash:any) {
     var result = await this.contractInstance.addProduct.sendTransaction(description, this.web3.fromAscii(String.fromCharCode.apply(null, new Uint8Array(hash))),weiPrice,{ from: localUser.address,gas:3000000});
     if (result) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
+     return true;
     }  
     else {
     that.alertService.openDialog("Impossibile aggiungere prodotto",true);
+    return false;
     }
   }
   catch(e) {
     that.alertService.openDialog("Impossibile aggiungere prodotto "+e.message,true);
+    return false;
   }
   
 }

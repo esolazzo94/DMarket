@@ -37,8 +37,10 @@ export class AddProductComponent implements OnInit {
   }
 
   async send() {
-    await this.contractService.addProduct(this.firstFormGroup.value.firstCtrl,this.secondFormGroup.value.secondCtrl,this.hash);
-    this.messageEvent.emit(true);
+    this.contractService.addProduct(this.firstFormGroup.value.firstCtrl,this.secondFormGroup.value.secondCtrl,this.hash).then((flag)=>{
+      this.messageEvent.emit(flag);
+    });
+    
   }
 
   hashFile(event) {
