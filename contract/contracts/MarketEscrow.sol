@@ -15,7 +15,6 @@ uint256 private depositBuyer;
 Market private marketIstance;
     
 constructor(address addr) public {
-    hashFile = 'null';
     expiration = now + 86400;
     marketAddress = addr;
     depositPayee = 0;
@@ -27,7 +26,9 @@ function setPayee(address p) public onlyPrimary() {
  payee = p;
 }
 
-function setFile(bytes32 hFile, bytes32 hEncryptedFile) public onlyPayee() payable {
+function setFile(string hFileString, string hEncryptedFileString) public onlyPayee() payable {
+    bytes32 hFile = marketIstance.convert(hFileString);
+    bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
     require(depositPayee == 0);
     hashFile = hFile;
     hashEncryptedFile = hEncryptedFile;

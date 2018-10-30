@@ -81,7 +81,8 @@ function getEscrowAddress(bytes32 hashFile, address buyer) returns(address) {
 }*/
 
 
-function addProduct(string description, bytes32 hashProduct, uint256 price) public /*payable*/ {
+function addProduct(string description, string hashString, uint256 price) public /*payable*/ {
+  bytes32 hashProduct = convert(hashString);
   products[hashProduct].description = description;
   products[hashProduct].seller = msg.sender;
   products[hashProduct].price = price;
@@ -89,11 +90,23 @@ function addProduct(string description, bytes32 hashProduct, uint256 price) publ
   users[msg.sender].products.push(hashProduct);
 }
 
-function getProduct(bytes32 hashProduct) public returns(string,address,uint256,uint256) {
+function convert(string key) returns (bytes32 ret) {
+    if (bytes(key).length > 32) {
+      throw;
+    }
+
+    assembly {
+      ret := mload(add(key, 32))
+    }
+  }
+
+function getProduct(string hashString) public returns(string,address,uint256,uint256) {
+  bytes32 hashProduct = convert(hashString);
   return (products[hashProduct].description,products[hashProduct].seller,products[hashProduct].price,products[hashProduct].purchaseLUTLenght);
 }
 
-function deleteProduct(address user, bytes32 hashProduct, uint256 index) public {
+function deleteProduct(address user, string hashString, uint256 index) public {
+  bytes32 hashProduct = convert(hashString);
   for (uint i = index; i<users[user].products.length-1; i++){
       users[user].products[i] = users[user].products[i+1];
   }
