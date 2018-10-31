@@ -135,9 +135,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.24;\n\nimport \"./Escrow.sol\";\n\n\n/**\n * @title ConditionalEscrow\n * @dev Base abstract escrow to only allow withdrawal if a condition is met.\n */\ncontract ConditionalEscrow is Escrow {\n  /**\n  * @dev Returns whether an address is allowed to withdraw their funds. To be\n  * implemented by derived contracts.\n  * @param payee The destination address of the funds.\n  */\n  function withdrawalAllowed(address payee) public view returns (bool);\n\n  function withdraw(address payee) public {\n    require(withdrawalAllowed(payee));\n    super.withdraw(payee);\n  }\n}\n",
-  "sourcePath": "C:\\Users\\Erasmo\\Desktop\\DMarket\\node_modules\\openzeppelin-solidity\\contracts\\payment\\ConditionalEscrow.sol",
+  "sourcePath": "C:\\Users\\esolazzo\\Desktop\\client\\node_modules\\openzeppelin-solidity\\contracts\\payment\\ConditionalEscrow.sol",
   "ast": {
-    "absolutePath": "/C/Users/Erasmo/Desktop/DMarket/node_modules/openzeppelin-solidity/contracts/payment/ConditionalEscrow.sol",
+    "absolutePath": "/C/Users/esolazzo/Desktop/client/node_modules/openzeppelin-solidity/contracts/payment/ConditionalEscrow.sol",
     "exportedSymbols": {
       "ConditionalEscrow": [
         1012
@@ -158,7 +158,7 @@
         "src": "0:24:5"
       },
       {
-        "absolutePath": "/C/Users/Erasmo/Desktop/DMarket/node_modules/openzeppelin-solidity/contracts/payment/Escrow.sol",
+        "absolutePath": "/C/Users/esolazzo/Desktop/client/node_modules/openzeppelin-solidity/contracts/payment/Escrow.sol",
         "file": "./Escrow.sol",
         "id": 984,
         "nodeType": "ImportDirective",
@@ -521,7 +521,7 @@
     "src": "0:574:5"
   },
   "legacyAST": {
-    "absolutePath": "/C/Users/Erasmo/Desktop/DMarket/node_modules/openzeppelin-solidity/contracts/payment/ConditionalEscrow.sol",
+    "absolutePath": "/C/Users/esolazzo/Desktop/client/node_modules/openzeppelin-solidity/contracts/payment/ConditionalEscrow.sol",
     "exportedSymbols": {
       "ConditionalEscrow": [
         1012
@@ -542,7 +542,7 @@
         "src": "0:24:5"
       },
       {
-        "absolutePath": "/C/Users/Erasmo/Desktop/DMarket/node_modules/openzeppelin-solidity/contracts/payment/Escrow.sol",
+        "absolutePath": "/C/Users/esolazzo/Desktop/client/node_modules/openzeppelin-solidity/contracts/payment/Escrow.sol",
         "file": "./Escrow.sol",
         "id": 984,
         "nodeType": "ImportDirective",
@@ -910,5 +910,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-10-30T19:29:33.590Z"
+  "updatedAt": "2018-10-31T08:20:18.884Z"
 }

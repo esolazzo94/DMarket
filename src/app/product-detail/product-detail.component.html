@@ -1,3 +1,15 @@
-<p>
-  product-detail works!
-</p>
+<div *ngIf='products.length' >
+<mat-list>
+  <mat-list-item>Descrizione: {{products[actualPage].description}}</mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item>Venduto da: {{products[actualPage].seller}}</mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item>Prezzo: {{products[actualPage].price}} Ether</mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item>Acquistato {{products[actualPage].purchaseNumber}} volte</mat-list-item>
+</mat-list>
+</div>
+  
+
+<mat-paginator length={{products.length}} [pageSize]="1" (page)="onPaginateChange($event)">
+</mat-paginator>
