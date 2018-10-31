@@ -99,9 +99,11 @@ export class ContractService {
     var that = this;
     for (var i=0; i<localUser.productTotalLenght; i++) {
       this.contractInstance.getUserProduct.call(localUser.address,i,{ from: localUser.address },function(error,result){
-        that.contractInstance.products.call(result,{ from: localUser.address },function(error,result){
+        var hash =result;
+        that.contractInstance.products.call(result,{ from: localUser.address },function(error,result){     
           var product = new Product;
           product.description = result[0];
+          product.hash = hash;
           product.seller = result[1];
           product.price = that.web3.fromWei(result[2].toNumber(),'ether');
           product.purchaseNumber = result[3].toNumber();
@@ -224,6 +226,21 @@ async addProduct(description:string, price:number, hash:any):Promise<boolean> {
   
 }
 
+deleteProduct(hash: string, index: number): Promise<boolean> {
+  return new Promise<boolean>((resolve) => {
+    var localUser = new User;
+    var that = this;
+    localUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.contractInstance.deleteProduct.sendTransaction(localUser.address.toLocaleUpperCase(),this.web3.fromAscii(hash),index,{ from: localUser.address.toLocaleUpperCase(),gas:3000000}, function(error,result){
+      if (!error) {
+        resolve(true);
+      }
+      else {
+        resolve(false);
+      }
+    })
+  })
+}
 
   getBalance(address: string): Observable<string> {
     /*const decodedId = uportconnect.MNID.decode(address);

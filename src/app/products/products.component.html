@@ -1,10 +1,8 @@
 <mat-card>
     <button mat-icon-button (click)="reset();loadAdd=true;"><mat-icon>add_circle</mat-icon></button>&nbsp;Aggiungi Prodotto
-    <button mat-icon-button (click)="reset();loadRemove=true;"><mat-icon>delete</mat-icon></button>&nbsp;Cancella Prodotto
 </mat-card>
 <mat-card>
     <app-product-detail *ngIf="loadDetail"></app-product-detail>
     <app-add-product *ngIf="loadAdd" (messageEvent)="receiveMessage($event)"></app-add-product>
-    <app-remove-product *ngIf="loadRemove"></app-remove-product>
 </mat-card>
 

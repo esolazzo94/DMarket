@@ -10,13 +10,11 @@ export class ProductsComponent implements OnInit {
   
   public loadDetail = false;
   public loadAdd = false;
-  public loadRemove = false;
 
 
   reset(){
     this.loadDetail = false;
     this.loadAdd = false;
-    this.loadRemove = false;
   }
 
   constructor() {

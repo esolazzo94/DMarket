@@ -16,6 +16,7 @@ export class ProductDetailComponent implements OnInit {
 
   public products:Array<Product>;
   public actualPage;
+  public loaded=false;
 
   constructor(private contractService: ContractService) {
     this.products = [];
@@ -25,11 +26,20 @@ export class ProductDetailComponent implements OnInit {
     var user = await this.contractService.updateUser();
     localStorage.setItem('currentUser', JSON.stringify(user)); 
     this.products = await this.contractService.getUserProducts();
+    this.loaded = true;
     this.actualPage = 0;
   }
 
-  onPaginateChange(event){
+  onPaginateChange(event) {
     this.actualPage= event.pageIndex;
+  }
+
+  async delete() {
+    this.contractService.deleteProduct(this.products[this.actualPage].hash,this.actualPage);
+    var user = await this.contractService.updateUser();
+    localStorage.setItem('currentUser', JSON.stringify(user)); 
+    this.products = await this.contractService.getUserProducts();
+    this.actualPage = 0;
   }
 
 }

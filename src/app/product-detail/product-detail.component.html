@@ -1,15 +1,25 @@
-<div *ngIf='products.length' >
-<mat-list>
-  <mat-list-item>Descrizione: {{products[actualPage].description}}</mat-list-item>
-  <mat-divider></mat-divider>
-  <mat-list-item>Venduto da: {{products[actualPage].seller}}</mat-list-item>
-  <mat-divider></mat-divider>
-  <mat-list-item>Prezzo: {{products[actualPage].price}} Ether</mat-list-item>
-  <mat-divider></mat-divider>
-  <mat-list-item>Acquistato {{products[actualPage].purchaseNumber}} volte</mat-list-item>
-</mat-list>
+<div *ngIf='products.length;'>
+  <div>
+      <mat-list>
+          <mat-list-item>Descrizione: {{products[actualPage].description}}</mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item>Codice prodotto: {{products[actualPage].hash}}</mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item>Venduto da: {{products[actualPage].seller}}</mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item>Prezzo: {{products[actualPage].price}} Ether</mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item>Acquistato {{products[actualPage].purchaseNumber}} volte</mat-list-item>
+        </mat-list>
+  </div>
+  <div>
+      <br>
+      <button  mat-icon-button (click)="delete();"><mat-icon>delete</mat-icon></button>&nbsp;Cancella
+      <mat-paginator length={{products.length}} [pageSize]="1" (page)="onPaginateChange($event)">
+      </mat-paginator>
+  </div>
 </div>
-  
 
-<mat-paginator length={{products.length}} [pageSize]="1" (page)="onPaginateChange($event)">
-</mat-paginator>
+<div *ngIf='!products.length && loaded'>
+  Non hai nessun prodotto in catalogo
+</div>
