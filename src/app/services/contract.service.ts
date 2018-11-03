@@ -5,7 +5,7 @@ import { WEB3 } from '../services/authentication.service';
 import * as data from '../../../contract/build/contracts/Market.json';
 import { saveAs } from 'file-saver';
 
-import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AlertService } from '../services/alert.service';
 import { User } from '../models/user.model';
 import { Product } from '../models/product.model';
@@ -20,6 +20,9 @@ declare var IpfsApi: any;
 export class ContractService {
 
   private contractInstance;
+  public balance$;
+
+
 
   constructor(
     private alertService: AlertService,
@@ -28,6 +31,8 @@ export class ContractService {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
       this.contractInstance = contract.at('0x962f0fa86004b264596b793b1b25d621765aaef3');
+      this.balance$ = new Subject();
+      
    }
 
    loginUser(addressLogin: string, returnUrl: string) {
@@ -127,6 +132,7 @@ export class ContractService {
       else {    
         that.createKeyPair().then((publicKey) =>{
           that.contractInstance.addUser.sendTransaction(address,publicKey,user.name,user.avatar.uri,{ from: address,gas:3000000 },function(error,result){
+            that.getBalance(address);
             if(!error) {
             that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
           }
@@ -209,6 +215,7 @@ async addProduct(description:string, price:number, hash:any):Promise<boolean> {
   var weiPrice = this.web3.toWei(price, 'ether');
   try {
     var result = await this.contractInstance.addProduct.sendTransaction(description, this.web3.fromAscii(String.fromCharCode.apply(null, new Uint8Array(hash))),weiPrice,{ from: localUser.address,gas:3000000});
+    that.getBalance(localUser.address);
     if (result) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
      return true;
@@ -231,6 +238,7 @@ deleteProduct(hash: string, index: number): Promise<boolean> {
     var that = this;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
     that.contractInstance.deleteProduct.sendTransaction(localUser.address,hash,index,{ from: localUser.address,gas:3000000}, function(error,result){
+      that.getBalance(localUser.address);
       if (!error) {
         resolve(true);
       }
@@ -241,17 +249,19 @@ deleteProduct(hash: string, index: number): Promise<boolean> {
   })
 }
 
-  getBalance(address: string): Observable<string> {
+
+
+  getBalance(address: string){
     /*const decodedId = uportconnect.MNID.decode(address);
     var decodedAddress = decodedId.address;*/
     var decodedAddress = address;
-
-    return new Observable<string>((observer) =>  { 
+    var that= this;
+    
       this.web3.eth.getBalance(decodedAddress,(err,bal) =>{
-        observer.next(this.web3.fromWei(bal.toString(),"ether"));
+        this.balance$.next(that.web3.fromWei(bal.toString(),"ether"));
 
          })
-    })
+    
   }
   
 }

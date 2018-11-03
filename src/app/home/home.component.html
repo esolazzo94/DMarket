@@ -22,7 +22,7 @@
       &nbsp;&nbsp;
       <a (click)="reset();loadUser=true;">{{localUser.name}}<br>{{localUser.address}}</a>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <a (click)="reset();loadUser=true;" *ngIf="balance$">ETH<br>{{balance$ | async}}</a>
+      <a (click)="reset();loadUser=true;" *ngIf="balance">ETH<br>{{balance}}</a>
       <a (click)="reset();loadUser=true;" mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
     </mat-toolbar>
     <div #container>

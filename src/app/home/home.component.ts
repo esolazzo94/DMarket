@@ -1,6 +1,5 @@
 import { Component, Inject } from '@angular/core';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
-import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Router, ActivatedRoute} from '@angular/router';
 import Web3 from 'web3';
@@ -27,7 +26,7 @@ export class HomeComponent {
   public loadProducts = false;
   public loadPurchases = false;
   public loadSales = false;
-  public balance$: Observable<string>;
+  public balance: string;
 
   reset(){
     this.loadMarket = false; 
@@ -46,21 +45,16 @@ export class HomeComponent {
     @Inject(WEB3) private web3: Web3) {
       this.localUser = new User;
       this.localUser = JSON.parse(localStorage.getItem('currentUser'));
-
-      //console.log(localUser);
-      //this.contractService.getBalance(/*localUser.address*/'0x273231D0669268e0D7Fce9C80b302b1F007224B0');
-      
-        //this.balance$ = this.contractService.getBalance('0x273231D0669268e0D7Fce9C80b302b1F007224B0');
-
-
-      //console.log(this.balance$);
+      this.contractService.balance$.subscribe(result =>{
+        this.balance = result;
+      });  
     }
 
     ngOnInit() {
       var localUser = JSON.parse(localStorage.getItem('currentUser'));
-      this.balance$ = this.contractService.getBalance(localUser.address);
-          
+      this.contractService.getBalance(localUser.address);     
   }
+
 
 
   exit() {
