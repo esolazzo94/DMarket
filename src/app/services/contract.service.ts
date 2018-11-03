@@ -27,13 +27,13 @@ export class ContractService {
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
+      this.contractInstance = contract.at('0x962f0fa86004b264596b793b1b25d621765aaef3');
    }
 
    loginUser(addressLogin: string, returnUrl: string) {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -91,16 +91,15 @@ export class ContractService {
     })
    }
 
-   getUserProducts():Promise<Array<Product>> {
+   async getUserProducts():Promise<Array<Product>> {
     return new Promise<Array<Product>>(resolve=>{
     var localUser = new User;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
     var products = new Array<Product>();
     var that = this;
     for (var i=0; i<localUser.productTotalLenght; i++) {
-      this.contractInstance.getUserProduct.call(localUser.address,i,{ from: localUser.address },function(error,result){
-        var hash =result;
-        that.contractInstance.products.call(result,{ from: localUser.address },function(error,result){     
+      var hash = this.contractInstance.getUserProduct.call(localUser.address,i,{ from: localUser.address });
+         var result=that.contractInstance.products.call(hash,{ from: localUser.address });    
           var product = new Product;
           product.description = result[0];
           product.hash = hash;
@@ -108,8 +107,8 @@ export class ContractService {
           product.price = that.web3.fromWei(result[2].toNumber(),'ether');
           product.purchaseNumber = result[3].toNumber();
           products.push(product);
-        });
-      })     
+  
+   
     }   
     resolve(products);
    })
@@ -118,7 +117,7 @@ export class ContractService {
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
@@ -231,7 +230,7 @@ deleteProduct(hash: string, index: number): Promise<boolean> {
     var localUser = new User;
     var that = this;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
-    this.contractInstance.deleteProduct.sendTransaction(localUser.address.toLocaleUpperCase(),this.web3.fromAscii(hash),index,{ from: localUser.address.toLocaleUpperCase(),gas:3000000}, function(error,result){
+    that.contractInstance.deleteProduct.sendTransaction(localUser.address,hash,index,{ from: localUser.address,gas:3000000}, function(error,result){
       if (!error) {
         resolve(true);
       }

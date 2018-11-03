@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { User } from '../models/user.model';
 import { ContractService } from '../services/contract.service';
 import { Product } from '../models/product.model';
+import { MatPaginator } from '@angular/material';
 
 @Component({
   selector: 'app-product-detail',
@@ -10,6 +11,8 @@ import { Product } from '../models/product.model';
   styleUrls: ['./product-detail.component.css']
 })
 export class ProductDetailComponent implements OnInit {
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   private productIndex = 0;
   private localUser;
@@ -39,7 +42,7 @@ export class ProductDetailComponent implements OnInit {
     var user = await this.contractService.updateUser();
     localStorage.setItem('currentUser', JSON.stringify(user)); 
     this.products = await this.contractService.getUserProducts();
-    this.actualPage = 0;
+    this.paginator.firstPage();
   }
 
 }

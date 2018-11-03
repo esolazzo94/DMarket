@@ -111,14 +111,11 @@ function getProduct(bytes32 hashProduct) public returns(string,address,uint256,u
 function deleteProduct(address user, bytes32 hashProduct, uint256 index) public {
   //bytes32 hashProduct = convert(hashString);
   if (msg.sender == user) {
-    for (uint i = index; i<users[user].products.length-1; i++){
-      users[user].products[i] = users[user].products[i+1];
-  }
-  delete users[user].products[users[user].products.length-1];
-  users[user].products.length--;
-  delete products[hashProduct];
-  users[user].productsLenght--;
-
+    users[user].products[index] = users[user].products[users[user].products.length-1];
+    delete users[user].products[users[user].products.length-1];
+    users[user].products.length--;
+    delete products[hashProduct];
+    users[user].productsLenght--;
   }
 }
 
