@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ContractService } from '../services/contract.service';
+import { Product } from '../models/product.model';
 
 @Component({
   selector: 'app-market',
@@ -7,9 +9,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MarketComponent implements OnInit {
 
-  constructor() { }
+  private index:number;
+  public actualProduct:Product;
+  public noProduct:boolean=false;
 
-  ngOnInit() {
+  constructor(private contractService: ContractService) {
+    this.index=0;
+    this.actualProduct=new Product();
+   }
+
+   async getProduct(index: number) {
+    this.actualProduct = await this.contractService.getProduct(index);
+   }
+
+  async ngOnInit() {  
+    await this.getProduct(this.index);
+    if (this.actualProduct.description === "") this.noProduct=true;
   }
 
 }

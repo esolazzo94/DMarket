@@ -30,7 +30,7 @@ export class ContractService {
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x962f0fa86004b264596b793b1b25d621765aaef3');
+      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
       this.balance$ = new Subject();
       
    }
@@ -38,7 +38,7 @@ export class ContractService {
    loginUser(addressLogin: string, returnUrl: string) {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
-    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
+    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -119,10 +119,28 @@ export class ContractService {
    })
   }
 
+  getProduct(index):Promise<Product> {
+    return new Promise<Product>(resolve=>{
+      
+    var localUser = new User;
+    localUser = JSON.parse(localStorage.getItem('currentUser'));
+    var product = new Product();
+    var that = this;
+    var hash = this.contractInstance.getProductCode.call(index,{ from: localUser.address });
+    var result=that.contractInstance.products.call(hash,{ from: localUser.address });    
+    product.description = result[0];
+    product.hash = hash;
+    product.seller = result[1];
+    product.price = that.web3.fromWei(result[2].toNumber(),'ether');
+    product.purchaseNumber = result[3].toNumber();
+    resolve(product);
+   })
+  }
+
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
-    var address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
+    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {

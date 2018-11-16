@@ -63,8 +63,8 @@ struct product {
 }
 
 mapping (bytes32 => product) public products;
-mapping (uint => bytes32) productsIndex; //doSomeStuff(accountBalances[accountIndex[i]]);
-uint productsCount;
+mapping (uint => bytes32) private productsIndex; //doSomeStuff(accountBalances[accountIndex[i]]);
+uint private  productsCount;
 
 function purchase(bytes32 hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
@@ -80,6 +80,21 @@ function getEscrowAddress(bytes32 hashFile, address buyer) returns(address) {
   else return true;
 }*/
 
+/*
+function find(uint value) returns(uint) {
+        uint i = 0;
+        while (values[i] != value) {
+            i++;
+        }
+        return i;
+    }
+
+    function removeByValue(uint value) {
+        uint i = find(value);
+        removeByIndex(i);
+    }
+ */
+
 
 function addProduct(string description, bytes32 hashProduct, uint256 price) public /*payable*/ {
   //bytes32 hashProduct = convert(hashString);
@@ -90,6 +105,8 @@ function addProduct(string description, bytes32 hashProduct, uint256 price) publ
     products[hashProduct].price = price;
     users[msg.sender].productsLenght++;
     users[msg.sender].products.push(hashProduct);
+    productsIndex[productsCount] = hashProduct;
+    productsCount++;
   }
 }
 
@@ -102,10 +119,18 @@ function convert(string key) returns (bytes32 ret) {
       ret := mload(add(key, 32))
     }
   }
-
+/*
 function getProduct(bytes32 hashProduct) public returns(string,address,uint256,uint256) {
   //bytes32 hashProduct = convert(hashString);
   return (products[hashProduct].description,products[hashProduct].seller,products[hashProduct].price,products[hashProduct].purchaseLUTLenght);
+}*/
+
+function getProductCode(uint code) public returns(bytes32) {
+  return productsIndex[code];
+}
+
+function getProductCode() public returns(int) {
+  return productsCount;
 }
 
 function deleteProduct(address user, bytes32 hashProduct, uint256 index) public {

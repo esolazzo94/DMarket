@@ -1,3 +1,19 @@
-<p>
-  market works!
-</p>
+<div *ngIf='!noProduct'>
+<div>
+  <mat-list>
+      <mat-list-item>Descrizione: {{actualProduct.description}}</mat-list-item>
+      <mat-divider></mat-divider>
+      <mat-list-item>Codice prodotto: {{actualProduct.hash}}</mat-list-item>
+      <mat-divider></mat-divider>
+      <mat-list-item>Venduto da: {{actualProduct.seller}}</mat-list-item>
+      <mat-divider></mat-divider>
+      <mat-list-item>Prezzo: {{actualProduct.price}} Ether</mat-list-item>
+      <mat-divider></mat-divider>
+      <mat-list-item>Acquistato {{actualProduct.purchaseNumber}} volte</mat-list-item>
+    </mat-list>
+</div>
+</div>
+
+<div *ngIf='noProduct'>
+  Non ci sono prodotti nel Market
+</div>
