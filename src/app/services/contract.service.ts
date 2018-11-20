@@ -7,6 +7,7 @@ import { saveAs } from 'file-saver';
 
 import { Subject } from 'rxjs';
 import { AlertService } from '../services/alert.service';
+import { AuthenticationService } from '../services/authentication.service';
 import { User } from '../models/user.model';
 import { Product } from '../models/product.model';
 
@@ -26,9 +27,11 @@ export class ContractService {
 
   constructor(
     private alertService: AlertService,
+    private authenticationService: AuthenticationService,
     private router: Router,
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
+      this.web3 = new Web3(authenticationService.getProvider());
       var contract = web3.eth.contract(abi);
       this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
       this.balance$ = new Subject();
