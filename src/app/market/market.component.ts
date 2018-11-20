@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../services/contract.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertService } from '../services/alert.service';
-import { AuthenticationService } from '../services/authentication.service';
 import { Product } from '../models/product.model';
 import { User } from '../models/user.model';
 
@@ -20,7 +19,6 @@ export class MarketComponent implements OnInit {
 
   constructor(private contractService: ContractService,
     private alertService: AlertService,
-    private authenticationService: AuthenticationService,
     private _formBuilder: FormBuilder) {
     this.index=0;
     this.actualProduct=new Product();
@@ -41,11 +39,11 @@ export class MarketComponent implements OnInit {
    buyProduct() {
     var localUser = new User;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (localUser.address/*.toLowerCase()*/ === this.actualProduct.seller.toLowerCase()) {
+    if (localUser.address.toLowerCase() === this.actualProduct.seller.toLowerCase()) {
       this.alertService.openDialog("Non puoi acquistare un tuo prodotto",true);
     }
     else {
-      this.authenticationService.transaction();
+      //this.authenticationService.transaction();
     }
    }
 
