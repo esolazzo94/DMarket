@@ -46,7 +46,7 @@ export class HomeComponent {
       this.localUser = new User;
       this.localUser = JSON.parse(localStorage.getItem('currentUser'));
       this.contractService.balance$.subscribe(result =>{
-        this.balance = result;
+      this.balance = result;
       });  
     }
 

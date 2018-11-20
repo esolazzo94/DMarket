@@ -32,7 +32,6 @@ export class ContractService {
       var contract = web3.eth.contract(abi);
       this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
       this.balance$ = new Subject();
-      
    }
 
    loginUser(addressLogin: string, returnUrl: string) {
@@ -119,17 +118,17 @@ export class ContractService {
    })
   }
 
-  getProduct(index):Promise<Product> {
+  getProduct(code:string):Promise<Product> {
     return new Promise<Product>(resolve=>{
       
     var localUser = new User;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
     var product = new Product();
     var that = this;
-    var hash = this.contractInstance.getProductCode.call(index,{ from: localUser.address });
-    var result=that.contractInstance.products.call(hash,{ from: localUser.address });    
+    //var hash = this.contractInstance.getProductCode.call(index,{ from: localUser.address });
+    var result=that.contractInstance.products.call(code,{ from: localUser.address });    
     product.description = result[0];
-    product.hash = hash;
+    product.hash = code;
     product.seller = result[1];
     product.price = that.web3.fromWei(result[2].toNumber(),'ether');
     product.purchaseNumber = result[3].toNumber();

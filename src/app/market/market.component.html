@@ -1,3 +1,12 @@
+<form [formGroup]="productCode">
+  <mat-form-field class="market-form">
+    <br><br>
+    <input matInput placeholder="Inserisci Codice Prodotto" formControlName="firstCtrl" required>
+  </mat-form-field>
+  <br>
+  <button mat-button class="market-button" color="primary" (click)="getProduct()" >Cerca</button>
+</form>
+
 <div *ngIf='!noProduct'>
 <div>
   <mat-list>
@@ -11,9 +20,11 @@
       <mat-divider></mat-divider>
       <mat-list-item>Acquistato {{actualProduct.purchaseNumber}} volte</mat-list-item>
     </mat-list>
+    <br>
+    <button mat-button class="market-button" color="primary" (click)="buyProduct()" >Acquista</button>
 </div>
 </div>
 
 <div *ngIf='noProduct'>
-  Non ci sono prodotti nel Market
+
 </div>

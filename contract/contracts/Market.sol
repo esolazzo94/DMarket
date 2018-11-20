@@ -129,7 +129,7 @@ function getProductCode(uint code) public returns(bytes32) {
   return productsIndex[code];
 }
 
-function getProductCode() public returns(int) {
+function getProductCode() public returns(uint) {
   return productsCount;
 }
 

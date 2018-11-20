@@ -21,6 +21,7 @@ export class AuthenticationService {
       signer: uportconnect.SimpleSigner('2fe3ac212cf3b4defc85e9e803b59bf63198f35e8f7e2254d01f07fbd81c6874'),
       network: 'rinkeby'
     });
+    this.connect.provider = new Web3.providers.HttpProvider('http://localhost:7545');
   }
 
   login() {
@@ -30,6 +31,14 @@ export class AuthenticationService {
     });
     this.reset();
     return result;
+  }
+
+  getProvider() {
+    return this.connect.getProvider();
+  }
+
+  transaction() {
+    
   }
 
   logout(){
