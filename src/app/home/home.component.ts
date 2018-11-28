@@ -43,6 +43,7 @@ export class HomeComponent {
     private alertService: AlertService,
     private contractService: ContractService,
     @Inject(WEB3) private web3: Web3) {
+      this.web3 = authenticationService.getWeb3();
       this.localUser = new User;
       this.localUser = JSON.parse(localStorage.getItem('currentUser'));
       this.contractService.balance$.subscribe(result =>{

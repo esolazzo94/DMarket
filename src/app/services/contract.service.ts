@@ -31,7 +31,7 @@ export class ContractService {
     private router: Router,
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
-      this.web3 = new Web3(authenticationService.getProvider());
+      this.web3 = authenticationService.getWeb3();
       var contract = web3.eth.contract(abi);
       this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
       this.balance$ = new Subject();
@@ -56,7 +56,7 @@ export class ContractService {
                 loginUser.productTotalLenght = result[4].toNumber();
                 localStorage.setItem('currentUser', JSON.stringify(loginUser));
                 var localUser = localStorage.getItem('currentUser');
-                that.router.navigate([returnUrl]);                 
+                that.router.navigate([returnUrl]);                
           } 
           else {
             that.alertService.openDialog("Utente Bloccato.\n Contatta un amministratore.",true);
