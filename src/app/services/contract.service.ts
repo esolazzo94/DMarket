@@ -40,7 +40,9 @@ export class ContractService {
    loginUser(addressLogin: string, returnUrl: string) {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address;
+    if (navigator.appCodeName.indexOf("Mozilla") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -142,7 +144,9 @@ export class ContractService {
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
-    var address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    var address;
+    if (navigator.appCodeName.indexOf("Mozilla") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
