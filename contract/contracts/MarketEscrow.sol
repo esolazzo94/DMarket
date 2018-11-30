@@ -5,6 +5,7 @@ import './Market.sol';
 
 contract MarketEscrow is ConditionalEscrow {
     
+address public buyer;    
 bytes32 private hashFile;
 bytes32 private hashEncryptedFile;
 address private marketAddress; 
@@ -19,6 +20,7 @@ constructor(address addr) public {
     marketAddress = addr;
     depositPayee = 0;
     depositBuyer = 0;
+    buyer = msg.sender;
     marketIstance = Market(marketAddress);
     }    
     
@@ -45,9 +47,7 @@ function depositFromBuyer() public payable onlyPrimary() {
 }
 
 function withdrawalAllowed(address payee) public view returns (bool) {
-
-        
-        
+      
         address h = marketIstance.getEscrowAddress(hashFile,this.primary());
         //if(stringsEqual(hashFile,h)) return true;
         if (h == address(this)) {           

@@ -18,17 +18,26 @@ struct user {
   string avatar;
   bytes32[] products;
   uint256 productsLenght;
+  address[] purchaseLUT;
+  uint256 purchaseLUTLenght;
   bool blocked;
 }
 
 mapping (address => user) public users;
 
 function addUser(address userAddress, string key, string name, string avatar) public {
+  require(msg.sender == userAddress);
   users[userAddress].publicKey = key;
   users[userAddress].name = name;
   users[userAddress].avatar = avatar;
   users[userAddress].blocked = false;
   users[userAddress].productsLenght = 0;  
+  users[userAddress].purchaseLUTLenght = 0; 
+}
+
+function addUserPurchase(address escrowAddress) public {
+  users[msg.sender].purchaseLUT.push(escrowAddress);
+  users[msg.sender].purchaseLUTLenght++;
 }
 
 
@@ -69,6 +78,7 @@ uint private  productsCount;
 function purchase(bytes32 hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
   products[hashFile].purchaseLUT.push(msg.sender);
+  products[hashFile].purchaseLUTLenght++;
 }
 
 function getEscrowAddress(bytes32 hashFile, address buyer) returns(address) {

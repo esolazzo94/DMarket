@@ -143,7 +143,7 @@ export class ContractService {
    })
   }
 
-  buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
+buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
     return new Promise<boolean>(resolve=>{
       var localUser = new User;
       var that = this;
@@ -162,7 +162,6 @@ export class ContractService {
         }, function (error, contract){
             if(error) {
               resolve(false);
-              console.log('Errore: ' + error)
             }
                 
             if (typeof contract.address !== 'undefined') {
@@ -170,14 +169,22 @@ export class ContractService {
                 contractAddress= contract.address;
                 
                 contract.setPayee.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000 },function(error,result){
-                  if(error) console.log(error);
+                  if(error) resolve(false);
                 });
                 
-                contract.deposit.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000},function(error,result){
+                contract.deposit.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000},async function(error,result){
                   if(!error){
-                    that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address});
+                    that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
+                      console.log(error,result);
+                    });
+                    that.contractInstance.addUserPurchase.sendTransaction(contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
+                      console.log(error,result);
+                      resolve(true);
+                    });
+                    await that.getBalance(localUser.address);
+                    
                   }
-                });
+                });/*
                 var depositEvent = contract.Deposited();
                 depositEvent.watch(function(error, result){
                   console.log(result);
@@ -186,8 +193,8 @@ export class ContractService {
                       {
                           console.log("Deposito avvenuto");
                       }
-              });
-              that.getBalance(localUser.address);
+              });*/
+              
             }
         });
 

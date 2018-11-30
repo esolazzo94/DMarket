@@ -44,6 +44,10 @@ export class MarketComponent implements OnInit {
     }
     else {
       var res = this.contractService.buyProduct(this.actualProduct.seller,this.actualProduct.hash);
+      this.actualProduct=new Product();
+      this.noProduct=true;
+      if (res) this.alertService.openDialog("Richiesta acquisto inviata",false);
+      else this.alertService.openDialog("Errore nella richiesta",true);
     }
    }
 
