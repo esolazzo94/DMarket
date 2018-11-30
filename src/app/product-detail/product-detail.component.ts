@@ -4,6 +4,7 @@ import { User } from '../models/user.model';
 import { ContractService } from '../services/contract.service';
 import { Product } from '../models/product.model';
 import { MatPaginator } from '@angular/material';
+import { AlertService } from '../services/alert.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -21,7 +22,8 @@ export class ProductDetailComponent implements OnInit {
   public actualPage;
   public loaded=false;
 
-  constructor(private contractService: ContractService) {
+  constructor(private contractService: ContractService,
+    private alertService: AlertService) {
     this.products = [];
    }
 
@@ -38,11 +40,16 @@ export class ProductDetailComponent implements OnInit {
   }
 
   async delete() {
-    this.contractService.deleteProduct(this.products[this.actualPage].hash,this.actualPage);
-    var user = await this.contractService.updateUser();
-    localStorage.setItem('currentUser', JSON.stringify(user)); 
-    this.products = await this.contractService.getUserProducts();
-    this.paginator.firstPage();
+    var res = await this.contractService.deleteProduct(this.products[this.actualPage].hash,this.actualPage);
+    if (res) {
+      var user = await this.contractService.updateUser();
+      localStorage.setItem('currentUser', JSON.stringify(user)); 
+      this.products = await this.contractService.getUserProducts();
+      this.paginator.firstPage();
+    }
+    else {
+      this.alertService.openDialog("Errore nel cancellare il file",true); 
+    }
   }
 
 }
