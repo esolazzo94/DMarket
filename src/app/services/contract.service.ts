@@ -11,6 +11,8 @@ import { AuthenticationService } from '../services/authentication.service';
 import { User } from '../models/user.model';
 import { Product } from '../models/product.model';
 
+import * as Escrow from '../../../contract/build/contracts/MarketEscrow.json'
+
 
 declare var uportconnect: any;
 declare var IpfsApi: any;
@@ -41,7 +43,7 @@ export class ContractService {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
     var address;
-    if (navigator.appCodeName.indexOf("Mozilla") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
     else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     var loginUser = new User;
@@ -141,11 +143,63 @@ export class ContractService {
    })
   }
 
+  buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
+    return new Promise<boolean>(resolve=>{
+      var localUser = new User;
+      var that = this;
+      localUser = JSON.parse(localStorage.getItem('currentUser'));
+      var abi = JSON.parse(JSON.stringify(Escrow)).abi;
+      var bytecode = JSON.parse(JSON.stringify(Escrow)).bytecode;
+      var escrowContract = this.web3.eth.contract(abi);
+      var contractAddress;
+
+      var escrowIstance = escrowContract.new(
+        {
+            from: localUser.address,
+            gas: 4712388,
+            gasPrice: 9000000000,
+            data: bytecode,
+        }, function (error, contract){
+            if(error) {
+              resolve(false);
+              console.log('Errore: ' + error)
+            }
+                
+            if (typeof contract.address !== 'undefined') {
+                console.log('Contract mined! address: ' + contract.address + '\ntransactionHash: ' + contract.transactionHash);
+                contractAddress= contract.address;
+                
+                contract.setPayee.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000 },function(error,result){
+                  if(error) console.log(error);
+                });
+                
+                contract.deposit.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000},function(error,result){
+                  if(!error){
+                    that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address});
+                  }
+                });
+                var depositEvent = contract.Deposited();
+                depositEvent.watch(function(error, result){
+                  console.log(result);
+                  console.log(error);
+                  if (!error)
+                      {
+                          console.log("Deposito avvenuto");
+                      }
+              });
+              that.getBalance(localUser.address);
+            }
+        });
+
+      
+    })
+  }
+
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
     var address;
-    if (navigator.appCodeName.indexOf("Mozilla") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
     else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){

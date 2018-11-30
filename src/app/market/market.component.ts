@@ -43,7 +43,7 @@ export class MarketComponent implements OnInit {
       this.alertService.openDialog("Non puoi acquistare un tuo prodotto",true);
     }
     else {
-      //this.authenticationService.transaction();
+      var res = this.contractService.buyProduct(this.actualProduct.seller,this.actualProduct.hash);
     }
    }
 
