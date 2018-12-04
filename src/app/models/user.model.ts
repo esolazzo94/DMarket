@@ -4,4 +4,5 @@ export class User {
     avatar: string;
     publicKey: string;
     productTotalLenght: number;
+    purchaseTotalLenght: number;
 }

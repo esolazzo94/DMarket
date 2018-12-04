@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { ContractService } from '../services/contract.service';
+import { AlertService } from '../services/alert.service';
+
+import { Escrow } from '../models/escrow.model';
 
 @Component({
   selector: 'app-purchases',
@@ -7,9 +11,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PurchasesComponent implements OnInit {
 
-  constructor() { }
+  public escrows:Array<Escrow>;
 
-  ngOnInit() {
+  constructor(private contractService: ContractService,
+    private alertService: AlertService) { }
+
+  async ngOnInit() {
+    var user = await this.contractService.updateUser();
+    localStorage.setItem('currentUser', JSON.stringify(user)); 
+    this.escrows = await this.contractService.getUserPurchases();
+    console.log(this.escrows);
   }
 
 }

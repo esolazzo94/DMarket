@@ -10,8 +10,9 @@ import { AlertService } from '../services/alert.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { User } from '../models/user.model';
 import { Product } from '../models/product.model';
+import { Escrow } from '../models/escrow.model';
 
-import * as Escrow from '../../../contract/build/contracts/MarketEscrow.json'
+import * as EscrowContract from '../../../contract/build/contracts/MarketEscrow.json'
 
 
 declare var uportconnect: any;
@@ -58,6 +59,7 @@ export class ContractService {
                 loginUser.avatar = result[2];
                 loginUser.publicKey = result[0];
                 loginUser.productTotalLenght = result[4].toNumber();
+                loginUser.purchaseTotalLenght = result[5].toNumber();
                 localStorage.setItem('currentUser', JSON.stringify(loginUser));
                 var localUser = localStorage.getItem('currentUser');
                 that.router.navigate([returnUrl]);                
@@ -87,6 +89,7 @@ export class ContractService {
                 localUser.avatar = result[2];
                 localUser.publicKey = result[0];
                 localUser.productTotalLenght = result[4].toNumber();
+                localUser.purchaseTotalLenght = result[5].toNumber();
                resolve(localUser);              
           } 
           else {
@@ -148,8 +151,8 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
       var localUser = new User;
       var that = this;
       localUser = JSON.parse(localStorage.getItem('currentUser'));
-      var abi = JSON.parse(JSON.stringify(Escrow)).abi;
-      var bytecode = JSON.parse(JSON.stringify(Escrow)).bytecode;
+      var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
+      var bytecode = JSON.parse(JSON.stringify(EscrowContract)).bytecode;
       var escrowContract = this.web3.eth.contract(abi);
       var contractAddress;
 
@@ -334,13 +337,70 @@ deleteProduct(hash: string, index: number): Promise<boolean> {
   })
 }
 
+getUserPurchases(): Promise<Array<Escrow>> {
+  return new Promise<Array<Escrow>>( async (resolve) => {
+      
+    var localUser = new User;
+    localUser = JSON.parse(localStorage.getItem('currentUser'));
+    var escrows = new Array<Escrow>();
+    
+    for (var i=0; i<localUser.purchaseTotalLenght; i++) {
+      var escrow = await this.getUserPurchase(localUser.address,i);
+      escrows.push(escrow);   
+    }   
+    resolve(escrows);
+        
+   })
+
+}
+
+getUserPurchase(address:string, index:number): Promise<Escrow> {
+  return new Promise<Escrow>(resolve=>{
+    var that = this;
+    this.contractInstance.getUserPurchase.call(address,index,{ from: address },function(error,result){
+
+      var escrow = new Escrow;
+      var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
+      var contract = that.web3.eth.contract(abi);
+      var escrowContractInstance = contract.at(result);
+
+      escrowContractInstance.payee.call({ from: address },function(error,result){
+
+        if (error) that.alertService.openDialog("Errore",true);
+        else {
+          escrow.seller = result;
+          escrowContractInstance.primary.call({ from: address },function(error,result){
+            if (error) that.alertService.openDialog("Errore",true);
+            else {
+              escrow.buyer = result;
+              escrowContractInstance.hashFile.call({ from: address },function(error,result){
+                if (error) that.alertService.openDialog("Errore",true);
+                 else {
+                   escrow.productHash = result;
+                   resolve(escrow);
+                 }
+              });
+            }
+        });
+
+        }
+      });
+           
+      
+    }); 
+
+  });
+}
 
 
-  getBalance(address: string){
+
+  async getBalance(address: string){
     /*const decodedId = uportconnect.MNID.decode(address);
     var decodedAddress = decodedId.address;*/
     var decodedAddress = address;
     var that= this;
+
+    
     
       this.web3.eth.getBalance(decodedAddress,(err,bal) =>{
         this.balance$.next(that.web3.fromWei(bal.toString(),"ether"));

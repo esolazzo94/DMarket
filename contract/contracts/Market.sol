@@ -41,14 +41,18 @@ function addUserPurchase(address escrowAddress) public {
 }
 
 
-function getUser(address userAddress) public view returns (string,string,string,bool,uint256) {
-  return (users[userAddress].publicKey,users[userAddress].name,users[userAddress].avatar,users[userAddress].blocked,users[userAddress].productsLenght);
+function getUser(address userAddress) public view returns (string,string,string,bool,uint256,uint256) {
+  return (users[userAddress].publicKey,users[userAddress].name,users[userAddress].avatar,users[userAddress].blocked,users[userAddress].productsLenght,users[userAddress].purchaseLUTLenght);
 }
 
 
 
 function getUserProduct(address userAddress, uint256 index) returns(bytes32) {
   return users[userAddress].products[index];
+}
+
+function getUserPurchase(address userAddress, uint256 index) returns(address) {
+  return users[userAddress].purchaseLUT[index];
 }
 
 function getOwner() public view returns (address) {

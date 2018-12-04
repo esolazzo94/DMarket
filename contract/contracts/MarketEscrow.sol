@@ -4,13 +4,17 @@ import '../../node_modules/openzeppelin-solidity/contracts/payment/ConditionalEs
 import './Market.sol';
 
 contract MarketEscrow is ConditionalEscrow {
+
+enum State {CREATED,DEPOSIT_BUYER,LOADED_FILE,DEPOSIT_SELLER,FINISHED}
+State state;
     
 address public buyer;    
-bytes32 private hashFile;
+bytes32 public hashFile;
 bytes32 private hashEncryptedFile;
+string private addressEncryptedFile; // DA VALUTARE
 address private marketAddress; 
 uint256 private expiration;
-address private payee;
+address public payee;
 uint256 private depositPayee;
 uint256 private depositBuyer;
 Market private marketIstance;
@@ -22,6 +26,7 @@ constructor(address addr) public {
     depositBuyer = 0;
     buyer = msg.sender;
     marketIstance = Market(marketAddress);
+    state = State.CREATED;
     }    
     
 function setPayee(address p) public onlyPrimary() {
@@ -34,7 +39,9 @@ function setFile(bytes32 hFile, bytes32 hEncryptedFile) public onlyPayee() payab
     require(depositPayee == 0);
     hashFile = hFile;
     hashEncryptedFile = hEncryptedFile;
+    state = State.LOADED_FILE;
     depositPayee = msg.value;
+    state = State.DEPOSIT_SELLER;
 }
 
 function getHashAddress() public view onlyPrimary() returns(bytes32) {
@@ -44,6 +51,7 @@ function getHashAddress() public view onlyPrimary() returns(bytes32) {
 function depositFromBuyer() public payable onlyPrimary() {
     require(depositBuyer == 0);
     depositBuyer = msg.value;
+    state = State.DEPOSIT_BUYER;
 }
 
 function withdrawalAllowed(address payee) public view returns (bool) {
@@ -64,6 +72,7 @@ function withdraw(address payee) public onlyPrimary() {
     msg.sender.transfer(depositBuyer);
     resetDeposit();
     super.withdraw(payee);
+    state = State.FINISHED;
   }
 
 function blockUser(address payee) public onlyPrimary() {
@@ -82,6 +91,7 @@ function refundBuyer(address payee) public onlyPrimary() {
         msg.sender.transfer(depositBuyer);
         resetDeposit();
         msg.sender.transfer(depositsOf(payee));
+        state = State.FINISHED;
         selfdestruct(msg.sender);
     }       
 }
