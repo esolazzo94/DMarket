@@ -105,28 +105,32 @@ export class ContractService {
     })
    }
 
-   async getUserProducts():Promise<Array<Product>> {
-    return new Promise<Array<Product>>(resolve=>{
+   getUserProducts():Promise<Array<Product>> {
+    return new Promise<Array<Product>>(async (resolve)=>{
     var localUser = new User;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
     var products = new Array<Product>();
     var that = this;
     for (var i=0; i<localUser.productTotalLenght; i++) {
-      var hash = this.contractInstance.getUserProduct.call(localUser.address,i,{ from: localUser.address });
-         var result=that.contractInstance.products.call(hash,{ from: localUser.address });    
-          var product = new Product;
-          product.description = result[0];
-          product.hash = hash;
-          product.seller = result[1];
-          product.price = that.web3.fromWei(result[2].toNumber(),'ether');
-          product.purchaseNumber = result[3].toNumber();
-          products.push(product);
-  
-   
+      var hash = await this.getProductCode(localUser.address,i);
+        var product = await this.getProduct(hash);
+        products.push(product);
+      
+      
     }   
     resolve(products);
+    
    })
   }
+
+  getProductCode(address:string, index:number):Promise<string> {
+    return new Promise<string>(resolve=>{    
+      this.contractInstance.getUserProduct.call(address,index,{ from: address }, function(error,result) {
+        resolve(result);
+      });
+    })
+  }
+
 
   getProduct(code:string):Promise<Product> {
     return new Promise<Product>(resolve=>{
@@ -136,13 +140,14 @@ export class ContractService {
     var product = new Product();
     var that = this;
     //var hash = this.contractInstance.getProductCode.call(index,{ from: localUser.address });
-    var result=that.contractInstance.products.call(code,{ from: localUser.address });    
-    product.description = result[0];
-    product.hash = code;
-    product.seller = result[1];
-    product.price = that.web3.fromWei(result[2].toNumber(),'ether');
-    product.purchaseNumber = result[3].toNumber();
-    resolve(product);
+    that.contractInstance.products.call(code,{ from: localUser.address },function(error,result) {
+      product.description = result[0];
+      product.hash = code;
+      product.seller = result[1];
+      product.price = that.web3.fromWei(result[2].toNumber(),'ether');
+      product.purchaseNumber = result[3].toNumber();
+      resolve(product);
+    });    
    })
   }
 
@@ -297,27 +302,29 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
 
 
 async addProduct(description:string, price:number, hash:any):Promise<boolean> {
-  var localUser = new User;
+  return new Promise<boolean>((resolve) => {
+    var localUser = new User;
   var that = this;
   localUser = JSON.parse(localStorage.getItem('currentUser'));
   var weiPrice = this.web3.toWei(price, 'ether');
   try {
-    var result = await this.contractInstance.addProduct.sendTransaction(description, this.web3.fromAscii(String.fromCharCode.apply(null, new Uint8Array(hash))),weiPrice,{ from: localUser.address,gas:3000000});
-    that.getBalance(localUser.address);
+    this.contractInstance.addProduct.sendTransaction(description, this.web3.fromAscii(String.fromCharCode.apply(null, new Uint8Array(hash))),weiPrice,{ from: localUser.address,gas:3000000},function(error,result){
+      that.getBalance(localUser.address);
     if (result) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
-     return true;
+     resolve(true);
     }  
     else {
     that.alertService.openDialog("Impossibile aggiungere prodotto",true);
-    return false;
-    }
+    resolve(false);
+      }
+    });   
   }
   catch(e) {
     that.alertService.openDialog("Impossibile aggiungere prodotto "+e.message,true);
-    return false;
+    resolve(false);
   }
-  
+  });
 }
 
 deleteProduct(hash: string, index: number): Promise<boolean> {
