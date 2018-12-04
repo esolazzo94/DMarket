@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { ContractService } from '../services/contract.service';
+import { AlertService } from '../services/alert.service';
+
+import { Escrow } from '../models/escrow.model';
 
 @Component({
   selector: 'app-sales',
@@ -7,9 +11,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SalesComponent implements OnInit {
 
-  constructor() { }
+  public escrows:Array<Escrow>;
+  public panelOpenState = false;
 
-  ngOnInit() {
+  constructor(private contractService: ContractService,
+    private alertService: AlertService) {
+      this.escrows = [];
+     }
+
+  async ngOnInit() {
+    var user = await this.contractService.updateUser();
+    localStorage.setItem('currentUser', JSON.stringify(user)); 
+    this.escrows = await this.contractService.getUserSales();
+    console.log(this.escrows);
   }
 
 }

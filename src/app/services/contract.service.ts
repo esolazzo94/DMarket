@@ -161,7 +161,7 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
       var escrowContract = this.web3.eth.contract(abi);
       var contractAddress;
 
-      var escrowIstance = escrowContract.new(
+      var escrowIstance = escrowContract.new('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79',hash,
         {
             from: localUser.address,
             gas: 4712388,
@@ -176,6 +176,10 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
                 console.log('Contract mined! address: ' + contract.address + '\ntransactionHash: ' + contract.transactionHash);
                 contractAddress= contract.address;
                 
+                contract.setPayee.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000 },function(error,result){
+                  if(error) resolve(false);
+                });
+
                 contract.setPayee.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000 },function(error,result){
                   if(error) resolve(false);
                 });
@@ -399,6 +403,11 @@ getUserPurchase(address:string, index:number): Promise<Escrow> {
   });
 }
 
+getUserSales(): Promise<Array<Escrow>> {
+  return new Promise<Array<Escrow>>( async (resolve) => {
+
+  });
+}
 
 
   async getBalance(address: string){

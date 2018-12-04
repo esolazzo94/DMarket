@@ -13,7 +13,8 @@ import {MatButtonModule,
         MatFormFieldModule,
         MatInputModule,
         MatPaginatorModule,
-        MatPaginatorIntl} from  '@angular/material';
+        MatPaginatorIntl,
+        MatExpansionModule} from  '@angular/material';
  
  
 @NgModule({
@@ -28,7 +29,8 @@ imports: [  MatButtonModule,
             MatStepperModule,
             MatFormFieldModule,
             MatInputModule,
-            MatPaginatorModule],
+            MatPaginatorModule,
+            MatExpansionModule],
 providers:[{provide: MatPaginatorIntl, useClass: CustomMatPaginatorIntl}
              ],
 exports: [  MatButtonModule,
@@ -42,7 +44,8 @@ exports: [  MatButtonModule,
             MatStepperModule,
             MatFormFieldModule,
             MatInputModule,
-            MatPaginatorModule],
+            MatPaginatorModule,
+            MatExpansionModule],
  
 })
  

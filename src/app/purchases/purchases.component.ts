@@ -12,9 +12,12 @@ import { Escrow } from '../models/escrow.model';
 export class PurchasesComponent implements OnInit {
 
   public escrows:Array<Escrow>;
+  public panelOpenState = false;
 
   constructor(private contractService: ContractService,
-    private alertService: AlertService) { }
+    private alertService: AlertService) { 
+      this.escrows = [];
+    }
 
   async ngOnInit() {
     var user = await this.contractService.updateUser();

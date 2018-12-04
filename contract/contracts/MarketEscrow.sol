@@ -19,12 +19,13 @@ uint256 private depositPayee;
 uint256 private depositBuyer;
 Market private marketIstance;
     
-constructor(address addr) public {
+constructor(address addr,bytes32 hFile) public {
     expiration = now + 86400;
     marketAddress = addr;
     depositPayee = 0;
     depositBuyer = 0;
     buyer = msg.sender;
+    hashFile = hFile;
     marketIstance = Market(marketAddress);
     state = State.CREATED;
     }    
@@ -37,7 +38,7 @@ function setFile(bytes32 hFile, bytes32 hEncryptedFile) public onlyPayee() payab
     //bytes32 hFile = marketIstance.convert(hFileString);
     //bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
     require(depositPayee == 0);
-    hashFile = hFile;
+    require(hashFile == hFile);
     hashEncryptedFile = hEncryptedFile;
     state = State.LOADED_FILE;
     depositPayee = msg.value;
