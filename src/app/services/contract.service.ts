@@ -361,7 +361,7 @@ getUserPurchases(): Promise<Array<Escrow>> {
     }   
     resolve(escrows);
         
-   })
+   });
 
 }
 
@@ -406,6 +406,54 @@ getUserPurchase(address:string, index:number): Promise<Escrow> {
 getUserSales(): Promise<Array<Escrow>> {
   return new Promise<Array<Escrow>>( async (resolve) => {
 
+    var localUser = new User;
+    localUser = JSON.parse(localStorage.getItem('currentUser'));
+    var escrows = new Array<Escrow>();
+
+    var products = new Array<Product>()
+    products = await this.getUserProducts();
+    
+    for (var i=0; i< products.length; i++) {
+      for (var y=0; i<products[i].purchaseNumber; y++) {
+        var escrow = await this.getProductSale(products[i].hash,y,localUser.address);
+        escrows.push(escrow);   
+      }  
+    }
+    resolve(escrows);
+  });
+}
+
+getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
+  return new Promise<Escrow>( async (resolve) => {
+    var that = this;
+    this.contractInstance.getProductPurchase.call(hash,index,{ from: address },function(error,result){
+
+      var escrow = new Escrow;
+      var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
+      var contract = that.web3.eth.contract(abi);
+      var escrowContractInstance = contract.at(result);
+
+      escrowContractInstance.payee.call({ from: address },function(error,result){
+
+        if (error) that.alertService.openDialog("Errore",true);
+        else {
+          escrow.seller = result;
+          escrowContractInstance.primary.call({ from: address },function(error,result){
+            if (error) that.alertService.openDialog("Errore",true);
+            else {
+              escrow.buyer = result;
+              escrowContractInstance.hashFile.call({ from: address },function(error,result){
+                if (error) that.alertService.openDialog("Errore",true);
+                 else {
+                   escrow.productHash = result;
+                   resolve(escrow);
+                 }
+              });
+            }
+        });
+        }
+      });            
+    }); 
   });
 }
 

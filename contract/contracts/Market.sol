@@ -55,6 +55,7 @@ function getUserPurchase(address userAddress, uint256 index) returns(address) {
   return users[userAddress].purchaseLUT[index];
 }
 
+
 function getOwner() public view returns (address) {
   return owner;
 }
@@ -78,6 +79,10 @@ struct product {
 mapping (bytes32 => product) public products;
 mapping (uint => bytes32) private productsIndex; //doSomeStuff(accountBalances[accountIndex[i]]);
 uint private  productsCount;
+
+function getProductPurchase(bytes32 product, uint256 index) returns(address) {
+  return products[product].purchaseLUT[index];
+}
 
 function purchase(bytes32 hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
