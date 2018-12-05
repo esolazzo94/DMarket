@@ -6,6 +6,17 @@
   </mat-expansion-panel-header>
   <p>Venditore {{item.seller}}</p>
 
+  <div *ngIf="item.state=='In_attesa_del_venditore'">
+      <mat-divider></mat-divider><br>
+        Caricare chiave per cifrare il File<br>
+        <input (change)="loadKey($event)" hidden id="input-file-id" multiple type="file" />
+        <label for="input-file-id" class="mat-raised-button" >Carica Chiave</label> 
+        &nbsp;<mat-icon>{{icon_lock}}</mat-icon>
+        <br>
+      <mat-divider></mat-divider><br><br>
+          <button mat-raised-button color="primary" (click)="loadFile();" disabled={{!loadFileEnabled}}>Carica File</button> 
+  </div>
+
 </mat-expansion-panel>
 
 <mat-expansion-panel *ngIf="!escrows.length&&loaded">

@@ -453,7 +453,70 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
     }); 
   });
 }
+/*
+  getUserPublicKeyBytes(): Promise<Uint8Array> {
+    return new Promise<Uint8Array>( resolve => {
 
+      const reader = new FileReader(); 
+    if(event.target.files && event.target.files.length === 1) {
+      const [file] = event.target.files;
+      reader.readAsArrayBuffer(event.target.files[0]);
+  
+      reader.onloadend = () => {
+        var contents = reader.result;
+      var hash = crypto.subtle.digest('SHA-256',contents).then(hashed=>{
+        this.hash = hashed;
+        this.isFileUploaded = true;
+      });
+      }    
+    }
+   else {
+     if (event.target.files.length >= 1) {
+      this.alertService.openDialog("Puoi caricare un solo file",true);   
+     }
+     else {
+      this.alertService.openDialog("Errore nel caricamento file",true);  
+     }
+   }
+
+      //Connceting to the ipfs network via infura gateway
+      const ipfs = new IpfsApi('ipfs.infura.io', '5001', {protocol: 'https'});
+
+      ipfs.files.get(validCID, function (err, files) {
+        files.forEach((file) => {
+          console.log(file.path)
+          console.log(file.content.toString('utf8'))
+        })
+      })
+
+    });
+  }*/
+
+  getPublicKey(address:string): Promise<string> {
+    return new Promise<string>( async(resolve) => {
+
+      
+
+        //Connceting to the ipfs network via infura gateway
+      const ipfs = new IpfsApi('ipfs.infura.io', '5001', {protocol: 'https'});
+
+      var keyAddress = await this.getPublicKeyAddress(address);
+
+      ipfs.files.get(keyAddress, function (err, file) {
+          resolve(file[0].content.toString('utf8'));
+      });
+
+      
+    });
+  }
+
+  getPublicKeyAddress(address:string):Promise<string> {
+    return new Promise<string>( resolve => {
+      this.contractInstance.getUser(address,{ from: address},function(error,result){
+        if(!error) resolve(result[0]);
+      });
+    });
+  }
 
   async getBalance(address: string){
     /*const decodedId = uportconnect.MNID.decode(address);
