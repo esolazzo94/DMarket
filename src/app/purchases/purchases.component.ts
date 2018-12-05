@@ -12,7 +12,7 @@ import { Escrow } from '../models/escrow.model';
 export class PurchasesComponent implements OnInit {
 
   public escrows:Array<Escrow>;
-  public panelOpenState = false;
+  public loaded = false;
 
   constructor(private contractService: ContractService,
     private alertService: AlertService) { 
@@ -23,7 +23,9 @@ export class PurchasesComponent implements OnInit {
     var user = await this.contractService.updateUser();
     localStorage.setItem('currentUser', JSON.stringify(user)); 
     this.escrows = await this.contractService.getUserPurchases();
-    console.log(this.escrows);
+    this.loaded = true;
   }
 
 }
+
+

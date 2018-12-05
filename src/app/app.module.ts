@@ -20,6 +20,7 @@ import { MessageDialog } from './services/alert.service';
 import { MarketComponent } from './market/market.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { AddProductComponent } from './add-product/add-product.component';
+import { AddSpacesPipe } from './add-spaces.pipe';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { AddProductComponent } from './add-product/add-product.component';
     MarketComponent,
     ProductDetailComponent,
     AddProductComponent,
+    AddSpacesPipe,
   ],
   imports: [
     BrowserModule,

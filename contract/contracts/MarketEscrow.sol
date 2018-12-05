@@ -5,8 +5,8 @@ import './Market.sol';
 
 contract MarketEscrow is ConditionalEscrow {
 
-enum State {CREATED,DEPOSIT_BUYER,LOADED_FILE,DEPOSIT_SELLER,FINISHED}
-State state;
+enum State {Contratto_creato,In_attesa_del_venditore,Prodotto_disponibile,In_attesa_del_compratore,Operazione_conclusa}
+State public state;
     
 address public buyer;    
 bytes32 public hashFile;
@@ -27,7 +27,7 @@ constructor(address addr,bytes32 hFile) public {
     buyer = msg.sender;
     hashFile = hFile;
     marketIstance = Market(marketAddress);
-    state = State.CREATED;
+    state = State.Contratto_creato;
     }    
     
 function setPayee(address p) public onlyPrimary() {
@@ -40,19 +40,18 @@ function setFile(bytes32 hFile, bytes32 hEncryptedFile) public onlyPayee() payab
     require(depositPayee == 0);
     require(hashFile == hFile);
     hashEncryptedFile = hEncryptedFile;
-    state = State.LOADED_FILE;
     depositPayee = msg.value;
-    state = State.DEPOSIT_SELLER;
+    state = State.Prodotto_disponibile;
 }
 
 function getHashAddress() public view onlyPrimary() returns(bytes32) {
     return hashEncryptedFile;
 }
 
-function depositFromBuyer() public payable onlyPrimary() {
+function depositFromBuyer() public onlyPrimary() {
     require(depositBuyer == 0);
-    depositBuyer = msg.value;
-    state = State.DEPOSIT_BUYER;
+    depositBuyer = depositsOf(msg.sender);
+    state = State.In_attesa_del_venditore;
 }
 
 function withdrawalAllowed(address payee) public view returns (bool) {
@@ -73,7 +72,7 @@ function withdraw(address payee) public onlyPrimary() {
     msg.sender.transfer(depositBuyer);
     resetDeposit();
     super.withdraw(payee);
-    state = State.FINISHED;
+    state = State.Operazione_conclusa;
   }
 
 function blockUser(address payee) public onlyPrimary() {
@@ -92,7 +91,7 @@ function refundBuyer(address payee) public onlyPrimary() {
         msg.sender.transfer(depositBuyer);
         resetDeposit();
         msg.sender.transfer(depositsOf(payee));
-        state = State.FINISHED;
+        state = Operazione_conclusa;
         selfdestruct(msg.sender);
     }       
 }

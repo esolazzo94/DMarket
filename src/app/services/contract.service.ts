@@ -10,7 +10,7 @@ import { AlertService } from '../services/alert.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { User } from '../models/user.model';
 import { Product } from '../models/product.model';
-import { Escrow } from '../models/escrow.model';
+import { Escrow, State } from '../models/escrow.model';
 
 import * as EscrowContract from '../../../contract/build/contracts/MarketEscrow.json'
 
@@ -175,41 +175,32 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
             if (typeof contract.address !== 'undefined') {
                 console.log('Contract mined! address: ' + contract.address + '\ntransactionHash: ' + contract.transactionHash);
                 contractAddress= contract.address;
-                
-                contract.setPayee.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000 },function(error,result){
-                  if(error) resolve(false);
-                });
 
                 contract.setPayee.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000 },function(error,result){
                   if(error) resolve(false);
                 });
                 
-                contract.deposit.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000},async function(error,result){
+                contract.deposit.sendTransaction(localUser.address,{from:localUser.address,gas : 2200000, value:1000000000000000000},async function(error,result){
                   if(!error){
-                    that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
-                      console.log(error,result);
-                    });
-                    that.contractInstance.addUserPurchase.sendTransaction(contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
-                      console.log(error,result);
-                      resolve(true);
-                    });
+                    contract.depositFromBuyer.sendTransaction({from:localUser.address,gas : 2200000},async function(error,result){
+                      if(!error) {
+                        that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
+                          console.log(error,result);
+                        });
+                        that.contractInstance.addUserPurchase.sendTransaction(contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
+                          console.log(error,result);
+                          resolve(true);
+                        });
+                      }
+                      else resolve(false);
+                    });               
                     await that.getBalance(localUser.address);
                     
                   }
-                });/*
-                var depositEvent = contract.Deposited();
-                depositEvent.watch(function(error, result){
-                  console.log(result);
-                  console.log(error);
-                  if (!error)
-                      {
-                          console.log("Deposito avvenuto");
-                      }
-              });*/
-              
+                  else resolve(false);
+                });
             }
         });
-
       
     })
   }
@@ -388,7 +379,10 @@ getUserPurchase(address:string, index:number): Promise<Escrow> {
                 if (error) that.alertService.openDialog("Errore",true);
                  else {
                    escrow.productHash = result;
-                   resolve(escrow);
+                   escrowContractInstance.state.call({ from: address },function(error,result){
+                    escrow.state = State[result];
+                    resolve(escrow);
+                  });
                  }
               });
             }
@@ -414,7 +408,7 @@ getUserSales(): Promise<Array<Escrow>> {
     products = await this.getUserProducts();
     
     for (var i=0; i< products.length; i++) {
-      for (var y=0; i<products[i].purchaseNumber; y++) {
+      for (var y=0; y<products[i].purchaseNumber; y++) {
         var escrow = await this.getProductSale(products[i].hash,y,localUser.address);
         escrows.push(escrow);   
       }  
@@ -445,8 +439,11 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
               escrowContractInstance.hashFile.call({ from: address },function(error,result){
                 if (error) that.alertService.openDialog("Errore",true);
                  else {
-                   escrow.productHash = result;
-                   resolve(escrow);
+                   escrow.productHash = result;                  
+                   escrowContractInstance.state.call({ from: address },function(error,result){
+                     escrow.state = State[result];
+                     resolve(escrow);
+                   });
                  }
               });
             }

@@ -2,13 +2,13 @@
 
     <mat-expansion-panel-header>
       <mat-panel-title>Prodotto {{item.productHash}}</mat-panel-title>
-      <mat-panel-description>Currently I am {{panelOpenState ? 'open' : 'closed'}}</mat-panel-description>
+      <mat-panel-description>{{item.state | addSpaces}}</mat-panel-description>
     </mat-expansion-panel-header>
-    <p>Venditore {{item.seller}}</p>
+    <p>Acquirente {{item.buyer}}</p>
   
   </mat-expansion-panel>
   
-  <mat-expansion-panel *ngIf="!escrows.length">
+  <mat-expansion-panel *ngIf="!escrows.length&&loaded">
       <mat-expansion-panel-header><p> Nessuna Vendita </p></mat-expansion-panel-header>
       Non hai ancora effettutato nessuna Vendita
   </mat-expansion-panel>

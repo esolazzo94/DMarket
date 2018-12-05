@@ -12,7 +12,7 @@ import { Escrow } from '../models/escrow.model';
 export class SalesComponent implements OnInit {
 
   public escrows:Array<Escrow>;
-  public panelOpenState = false;
+  public loaded = false;
 
   constructor(private contractService: ContractService,
     private alertService: AlertService) {
@@ -23,7 +23,7 @@ export class SalesComponent implements OnInit {
     var user = await this.contractService.updateUser();
     localStorage.setItem('currentUser', JSON.stringify(user)); 
     this.escrows = await this.contractService.getUserSales();
-    console.log(this.escrows);
+    this.loaded = true;
   }
 
 }
