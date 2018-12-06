@@ -51,6 +51,7 @@ function getHashAddress() public view onlyPrimary() returns(bytes32) {
 function depositFromBuyer() public onlyPrimary() {
     require(depositBuyer == 0);
     depositBuyer = depositsOf(msg.sender);
+    //MarketEscrow(address(this)).deposit.value(msg.value)(msg.sender);
     state = State.In_attesa_del_venditore;
 }
 
