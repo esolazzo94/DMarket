@@ -91,7 +91,7 @@ function refundBuyer(address payee) public onlyPrimary() {
         msg.sender.transfer(depositBuyer);
         resetDeposit();
         msg.sender.transfer(depositsOf(payee));
-        state = Operazione_conclusa;
+        state = State.Operazione_conclusa;
         selfdestruct(msg.sender);
     }       
 }

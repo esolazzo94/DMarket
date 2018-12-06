@@ -234,7 +234,7 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
   }
 
 
-  private byteArrayToBase64(byteArray){
+  public byteArrayToBase64(byteArray){
     var binaryString = "";
     for (var i=0; i<byteArray.byteLength; i++){
         binaryString += String.fromCharCode(byteArray[i]);
@@ -522,15 +522,19 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
     /*const decodedId = uportconnect.MNID.decode(address);
     var decodedAddress = decodedId.address;*/
     var decodedAddress = address;
-    var that= this;
-
-    
-    
+    var that= this;  
       this.web3.eth.getBalance(decodedAddress,(err,bal) =>{
         this.balance$.next(that.web3.fromWei(bal.toString(),"ether"));
+         }) 
+  }
 
-         })
-    
+  public base64ToByteArray(base64String:string):Uint8Array{
+    var binaryString = window.atob(base64String);
+    var byteArray = new Uint8Array(binaryString.length);
+    for (var i=0; i<binaryString.length; i++){
+        byteArray[i] += binaryString.charCodeAt(i);
+    }
+    return byteArray;
   }
   
 }

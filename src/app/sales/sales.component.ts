@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../services/contract.service';
+import { CommonService } from '../services/common.service';
 import { AlertService } from '../services/alert.service';
 
 import { Escrow } from '../models/escrow.model';
@@ -13,12 +14,17 @@ export class SalesComponent implements OnInit {
 
   public escrows:Array<Escrow>;
   public loaded = false;
-  public loadFileEnabled = false;
-  public icon_lock = 'lock';
+  public loadFileEnabled = true;
+  
+  private encryptedFileAddress:string;
+  private encryptedSessionKeyAddress:string;
 
   constructor(private contractService: ContractService,
+    private commonService: CommonService,
     private alertService: AlertService) {
       this.escrows = [];
+      this.encryptedFileAddress = null;
+      this.encryptedSessionKeyAddress = null;
      }
 
   async ngOnInit() {
@@ -27,7 +33,7 @@ export class SalesComponent implements OnInit {
     this.escrows = await this.contractService.getUserSales();
     this.loaded = true;
   }
-
+/*
   loadKey(event) {
 
     const reader = new FileReader(); 
@@ -61,21 +67,23 @@ export class SalesComponent implements OnInit {
 
     this.icon_lock = 'lock_open';
     this.loadFileEnabled = true;
-  }
+  }*/
 
-  base64ToByteArray(base64String:string):Uint8Array{
-    var binaryString = window.atob(base64String);
-    var byteArray = new Uint8Array(binaryString.length);
-    for (var i=0; i<binaryString.length; i++){
-        byteArray[i] += binaryString.charCodeAt(i);
-    }
-    return byteArray;
-}
+  
 
-  async loadFile(address:string) {
-    var publicKeyString = await this.contractService.getPublicKey(address);
+  async loadFile(address:string,event) {
+    var that = this;
+    const reader = new FileReader(); 
+    if(event.target.files && event.target.files.length === 1) {
+      const [file] = event.target.files;
+      reader.readAsArrayBuffer(event.target.files[0]);
+  
+      reader.onloadend = async () => {
+        var fileBytes = reader.result;
+
+        var publicKeyString = await this.contractService.getPublicKey(address);
     console.log(publicKeyString);
-    var publicKeyBytes = this.base64ToByteArray(publicKeyString);
+    var publicKeyBytes = this.contractService.base64ToByteArray(publicKeyString);
     window.crypto.subtle.importKey(
       "spki",
       publicKeyBytes,
@@ -84,7 +92,67 @@ export class SalesComponent implements OnInit {
     ["encrypt"]
   ).then(function(publicKey) {
     console.log(publicKey);
+    //generate random session key
+    return window.crypto.subtle.generateKey(
+      {name: "AES-CBC", length: 256},
+      true,
+      ["encrypt", "decrypt"]
+    ).then(function(sessionKey) {
+      var ivBytes = window.crypto.getRandomValues(new Uint8Array(16));
+      
+      //Encrypt file
+      window.crypto.subtle.encrypt(
+        {name: "AES-CBC", iv: ivBytes}, sessionKey, fileBytes
+    ).then(async (ciphertextBuffer) => {
+        // Build a Blob with the 16-byte IV followed by the ciphertext
+        var cipher = [ivBytes, new Uint8Array(ciphertextBuffer)];
+        var blob = new Blob(
+            [ivBytes, new Uint8Array(ciphertextBuffer)],
+            {type: "application/octet-stream"}
+        );
+        that.encryptedFileAddress = await that.commonService.sendFile(cipher);
+
+
+        //Encrypt session key
+    window.crypto.subtle.exportKey(
+      "raw", sessionKey
+  ).then(function(sessionKeyBuffer) {
+      // Encrypt the session key in the buffer, save the encrypted
+      // key in the keyBox element.
+      window.crypto.subtle.encrypt(
+          {name: "RSA-OAEP"},
+          publicKey,  
+          sessionKeyBuffer
+      ).then(async (encryptedSessionKeyBuffer) => {
+          var encryptedSessionKeyBytes = new Uint8Array(encryptedSessionKeyBuffer);
+          var encryptedSessionKeyBase64 = that.contractService.byteArrayToBase64(encryptedSessionKeyBytes);
+
+          that.encryptedSessionKeyAddress = await that.commonService.sendFile(encryptedSessionKeyBase64);
+
+          that.loadFileEnabled = false;
+          that.alertService.openDialog("File caricato",false);
+      });
+    });
+    });
+
+   });
   });
+
+        
+      
+      }    
+    }
+   else {
+     if (event.target.files.length >= 1) {
+      this.alertService.openDialog("Puoi caricare un solo file",true);   
+     }
+     else {
+      this.alertService.openDialog("Errore nel caricamento file",true);  
+     }
+   } 
+
+
+    
 
   }
 
