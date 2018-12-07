@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+import { ContractService } from '../services/contract.service';
+
 declare var IpfsApi: any;
 
 @Injectable({
@@ -7,7 +9,7 @@ declare var IpfsApi: any;
 })
 export class CommonService {
 
-  constructor() { }
+  constructor(private contractService:ContractService ) { }
 
   public sendFile(file:any):Promise<string> {
     return new Promise<string>((resolve) => {
@@ -18,8 +20,16 @@ export class CommonService {
                 }); 
 
     });
-     
+  }
 
+  public hashing(fileBytes:any):Promise<string> {
+    return new Promise<string>((resolve) => {
+      var that=this;
+      var hash = crypto.subtle.digest('SHA-256',fileBytes).then(hashed=>{
+        resolve(that.contractService.hash(hashed));
+        
+      });
+    });
   }
 
 

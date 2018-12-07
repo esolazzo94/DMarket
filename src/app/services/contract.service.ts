@@ -292,15 +292,18 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
     }); 
 }
 
+public hash(bytes):string {
+ return this.web3.fromAscii(String.fromCharCode.apply(null, new Uint8Array(bytes)));
+}
 
-async addProduct(description:string, price:number, hash:any):Promise<boolean> {
+async addProduct(description:string, price:number, hashBytes:any):Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     var localUser = new User;
   var that = this;
   localUser = JSON.parse(localStorage.getItem('currentUser'));
   var weiPrice = this.web3.toWei(price, 'ether');
   try {
-    this.contractInstance.addProduct.sendTransaction(description, this.web3.fromAscii(String.fromCharCode.apply(null, new Uint8Array(hash))),weiPrice,{ from: localUser.address,gas:3000000},function(error,result){
+    this.contractInstance.addProduct.sendTransaction(description,this.hash(hashBytes),weiPrice,{ from: localUser.address,gas:3000000},function(error,result){
       that.getBalance(localUser.address);
     if (result) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
@@ -362,6 +365,7 @@ getUserPurchase(address:string, index:number): Promise<Escrow> {
       var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
       var contract = that.web3.eth.contract(abi);
       var escrowContractInstance = contract.at(result);
+      escrow.escrowAddress = result;
 
       escrowContractInstance.payee.call({ from: address },function(error,result){
 
@@ -423,6 +427,7 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
       var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
       var contract = that.web3.eth.contract(abi);
       var escrowContractInstance = contract.at(result);
+      escrow.escrowAddress = result;
 
       escrowContractInstance.payee.call({ from: address },function(error,result){
 
@@ -532,6 +537,31 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
         byteArray[i] += binaryString.charCodeAt(i);
     }
     return byteArray;
+  }
+
+  public loadFile(originalFileHash:string,encryptedFileAddress:string, encryptedSessionKeyAddress:string, escrowAddress:string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      var localUser = this.loadUser();
+      var that =this;
+      var escrowContractInstance = this.loadEscrowContract(escrowAddress);
+
+      escrowContractInstance.setFile.sendTransaction(originalFileHash,encryptedFileAddress,encryptedSessionKeyAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000}, function(error,result){
+        if(result) resolve(true);
+        else resolve(false);
+        that.getBalance(localUser.address);
+      });
+
+    });
+  }
+
+  private loadUser():User {
+    return JSON.parse(localStorage.getItem('currentUser'));
+  }
+
+  private loadEscrowContract (address:string):any {
+    var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
+    var contract = this.web3.eth.contract(abi);
+    return  contract.at(address);
   }
   
 }

@@ -18,6 +18,7 @@ export class SalesComponent implements OnInit {
   
   private encryptedFileAddress:string;
   private encryptedSessionKeyAddress:string;
+  private hashOriginalFile:string;
 
   constructor(private contractService: ContractService,
     private commonService: CommonService,
@@ -71,7 +72,7 @@ export class SalesComponent implements OnInit {
 
   
 
-  async loadFile(address:string,event) {
+  async loadFile(address:string,escrowAddress:string,event) {
     var that = this;
     const reader = new FileReader(); 
     if(event.target.files && event.target.files.length === 1) {
@@ -81,13 +82,15 @@ export class SalesComponent implements OnInit {
       reader.onloadend = async () => {
         var fileBytes = reader.result;
 
+        that.hashOriginalFile = await that.commonService.hashing(fileBytes);
+
         var publicKeyString = await this.contractService.getPublicKey(address);
     console.log(publicKeyString);
     var publicKeyBytes = this.contractService.base64ToByteArray(publicKeyString);
     window.crypto.subtle.importKey(
       "spki",
       publicKeyBytes,
-    {name: "RSA-OAEP", hash: "SHA-256"},
+    {name: "RSA-OAEP", hash: {name: "SHA-256"}},
     false,
     ["encrypt"]
   ).then(function(publicKey) {
@@ -129,8 +132,18 @@ export class SalesComponent implements OnInit {
 
           that.encryptedSessionKeyAddress = await that.commonService.sendFile(encryptedSessionKeyBase64);
 
-          that.loadFileEnabled = false;
-          that.alertService.openDialog("File caricato",false);
+          var result = await that.contractService.loadFile(that.hashOriginalFile,that.encryptedFileAddress,that.encryptedSessionKeyAddress,escrowAddress);
+
+          if (result) {
+            that.loadFileEnabled = false;
+            that.alertService.openDialog("File caricato",false);
+          }
+
+          else {
+            that.alertService.openDialog("Errore nel caricamento del file",true);
+          }
+
+          
       });
     });
     });

@@ -10,15 +10,17 @@ State public state;
     
 address public buyer;    
 bytes32 public hashFile;
-bytes32 private hashEncryptedFile;
+bytes32 private hashEncryptedFile; // DA VALUTARE
 string public keyAddress;
-string private addressEncryptedFile; // DA VALUTARE
+string private addressEncryptedFile; 
 address private marketAddress; 
 uint256 private expiration;
 address public payee;
 uint256 private depositPayee;
 uint256 private depositBuyer;
 Market private marketIstance;
+
+uint256 private _depositSeller;
     
 constructor(address addr,bytes32 hFile) public {
     expiration = now + 86400;
@@ -35,15 +37,21 @@ function setPayee(address p) public onlyPrimary() {
  payee = p;
 }
 
-function setFile(bytes32 hFile, bytes32 hEncryptedFile, string key) public payable onlyPayee()  {
+function setFile(bytes32 hFile, string hEncryptedFile, string key) public payable onlyPayee()  {
     //bytes32 hFile = marketIstance.convert(hFileString);
     //bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
-    require(depositPayee == 0);
-    require(hashFile == hFile);
-    hashEncryptedFile = hEncryptedFile;
+    /*require(hashFile == hFile);
+    addressEncryptedFile = hEncryptedFile;
     keyAddress = key;
     deposit(msg.sender);
-    depositPayee = msg.value;
+    state = State.Prodotto_disponibile;*/
+    //require(hashFile == hFile);
+    addressEncryptedFile = hEncryptedFile;
+    keyAddress = key;
+    uint256 amount = msg.value;
+    _depositSeller = _depositSeller.add(amount);
+    //deposit(msg.sender);
+    //depositPayee = msg.value;
     state = State.Prodotto_disponibile;
 }
 
@@ -55,6 +63,13 @@ function depositFromBuyer() public payable onlyPrimary() {
     require(depositBuyer == 0);
     deposit(msg.sender);
     depositBuyer = depositsOf(msg.sender);
+    state = State.In_attesa_del_venditore;
+}
+
+function depositFromSeller() public payable onlyPayee() {
+    
+    deposit(msg.sender);
+    
     state = State.In_attesa_del_venditore;
 }
 

@@ -15,7 +15,7 @@
           <br-->
         <mat-divider></mat-divider><br><br>
         <div *ngIf="loadFileEnabled" >
-          <input (change)="loadFile(item.buyer,$event)" hidden id="input-file-id" multiple type="file" />
+          <input (change)="loadFile(item.buyer,item.escrowAddress,$event)" hidden id="input-file-id" multiple type="file" />
           <label for="input-file-id" class="mat-raised-button">Carica File</label> 
         </div>
         

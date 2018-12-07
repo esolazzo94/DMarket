@@ -46,7 +46,7 @@ export class PurchasesComponent implements OnInit {
         window.crypto.subtle.importKey(
           "pkcs8",
           privateKetBytes,
-        {name: "RSA-OAEP", hash: "SHA-256"},
+        {name: "RSA-OAEP", hash: {name: "SHA-256"}},
         false,
         ["decrypt"]
       ).then(function(privateKey) {
