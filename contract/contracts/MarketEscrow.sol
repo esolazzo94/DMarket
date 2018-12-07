@@ -12,7 +12,7 @@ address public buyer;
 bytes32 public hashFile;
 bytes32 private hashEncryptedFile; // DA VALUTARE
 string public keyAddress;
-string private addressEncryptedFile; 
+string public addressEncryptedFile; 
 address private marketAddress; 
 uint256 private expiration;
 address public payee;

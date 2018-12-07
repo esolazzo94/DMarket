@@ -563,5 +563,24 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
     var contract = this.web3.eth.contract(abi);
     return  contract.at(address);
   }
+
+  public downloadkey(escrowAddress:string): Promise<string> {
+    return new Promise<string>((resolve) => {
+      var localUser = this.loadUser();
+      var escrowContractIstance = this.loadEscrowContract(escrowAddress);
+
+      escrowContractIstance.keyAddress.call({ from: localUser.address }, function (error,result){
+
+        if(!error) {
+          const ipfs = new IpfsApi('ipfs.infura.io', '5001', {protocol: 'https'});
+          ipfs.files.get(result, function (err, file) {
+            resolve(file[0].content.toString('utf8'));
+        });
+        }
+      });
+
+    });
+  }
+
   
 }

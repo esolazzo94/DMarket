@@ -128,7 +128,7 @@ export class SalesComponent implements OnInit {
       window.crypto.subtle.encrypt(
         {
           name: "RSA-OAEP",
-          //hash: "SHA-256" For Microsoft Edge
+          //hash: "SHA-256" //For Microsoft Edge
       },
           publicKey,  
           sessionKeyBuffer

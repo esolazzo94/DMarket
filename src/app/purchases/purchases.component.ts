@@ -68,17 +68,32 @@ export class PurchasesComponent implements OnInit {
 
   }
 
-  downloadFile(item:Escrow) {
-    console.log(item);
-    console.log(this.privateKey);
+  async downloadFile(item:Escrow) {
+    var encryptedKey = await this.contractService.downloadkey(item.escrowAddress);
 
-    //this.contractService.downloadKey();
+    var encryptedSessionKeyBytes = this.contractService.base64ToByteArray(encryptedKey);
+
+    try {
+      var sessionKeyBuffer = await window.crypto.subtle.decrypt({name: "RSA-OAEP"}, this.privateKey, encryptedSessionKeyBytes);
+
+      window.crypto.subtle.importKey(
+        // We can't use the session key until it is in a CryptoKey object
+        "raw", sessionKeyBuffer, {name: "AES-CBC", length: 256}, false, ["decrypt"]
+    ).then(function(sessionKey){
+      
+        console.log(sessionKey);
+        //Decrypt File
+
+    });
+
+    }
+    catch(e) {
+      this.alertService.openDialog("Hai caricato la chiave sbagliata",true);  
+    }
     //this.contractService.downloadFile();
     //this.commonService.decryptFile();
     //this.commonService.hashing();
     //this.contractService.withdraw();
-
-
   }
 
 }
