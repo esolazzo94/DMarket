@@ -6,7 +6,7 @@
   </mat-expansion-panel-header>
   <p>Venditore {{item.seller}}</p>
 
-  <div *ngIf="item.state=='In_attesa_del_venditore'">
+  <div *ngIf="item.state=='Prodotto_disponibile'">
       <mat-divider></mat-divider><br>
         Caricare chiave per scaricare e decifrare il File<br>
         <input (change)="loadKey($event)" hidden id="input-file-id" multiple type="file" />

@@ -123,7 +123,10 @@ export class SalesComponent implements OnInit {
       // Encrypt the session key in the buffer, save the encrypted
       // key in the keyBox element.
       window.crypto.subtle.encrypt(
-          {name: "RSA-OAEP"},
+        {
+          name: "RSA-OAEP",
+          //hash: "SHA-256" For Microsoft Edge
+      },
           publicKey,  
           sessionKeyBuffer
       ).then(async (encryptedSessionKeyBuffer) => {
@@ -136,7 +139,8 @@ export class SalesComponent implements OnInit {
 
           if (result) {
             that.loadFileEnabled = false;
-            that.alertService.openDialog("File caricato",false);
+            that.escrows = await that.contractService.getUserSales();
+            that.alertService.openDialog("File caricato",false);          
           }
 
           else {
