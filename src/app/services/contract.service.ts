@@ -539,13 +539,13 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
     return byteArray;
   }
 
-  public loadFile(originalFileHash:string,encryptedFileAddress:string, encryptedSessionKeyAddress:string, escrowAddress:string): Promise<boolean> {
+  public loadFile(hashLoadedFile:string,encryptedFileAddress:string, encryptedSessionKeyAddress:string, escrowAddress:string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       var localUser = this.loadUser();
       var that =this;
       var escrowContractInstance = this.loadEscrowContract(escrowAddress);
 
-      escrowContractInstance.setFile.sendTransaction(originalFileHash,encryptedFileAddress,encryptedSessionKeyAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000}, function(error,result){
+      escrowContractInstance.setFile.sendTransaction(hashLoadedFile,encryptedFileAddress,encryptedSessionKeyAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000}, function(error,result){
         if(result) resolve(true);
         else resolve(false);
         that.getBalance(localUser.address);

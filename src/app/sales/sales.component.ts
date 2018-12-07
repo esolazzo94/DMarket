@@ -19,6 +19,7 @@ export class SalesComponent implements OnInit {
   private encryptedFileAddress:string;
   private encryptedSessionKeyAddress:string;
   private hashOriginalFile:string;
+  private hashLoadedFile:string;
 
   constructor(private contractService: ContractService,
     private commonService: CommonService,
@@ -72,7 +73,7 @@ export class SalesComponent implements OnInit {
 
   
 
-  async loadFile(address:string,escrowAddress:string,event) {
+  async loadFile(address:string,escrowAddress:string,originalHash:string,event) {
     var that = this;
     const reader = new FileReader(); 
     if(event.target.files && event.target.files.length === 1) {
@@ -82,9 +83,11 @@ export class SalesComponent implements OnInit {
       reader.onloadend = async () => {
         var fileBytes = reader.result;
 
-        that.hashOriginalFile = await that.commonService.hashing(fileBytes);
+        that.hashLoadedFile = await that.commonService.hashing(fileBytes);
 
-        var publicKeyString = await this.contractService.getPublicKey(address);
+        if (that.hashLoadedFile === originalHash ) {
+
+          var publicKeyString = await this.contractService.getPublicKey(address);
     console.log(publicKeyString);
     var publicKeyBytes = this.contractService.base64ToByteArray(publicKeyString);
     window.crypto.subtle.importKey(
@@ -135,7 +138,7 @@ export class SalesComponent implements OnInit {
 
           that.encryptedSessionKeyAddress = await that.commonService.sendFile(encryptedSessionKeyBase64);
 
-          var result = await that.contractService.loadFile(that.hashOriginalFile,that.encryptedFileAddress,that.encryptedSessionKeyAddress,escrowAddress);
+          var result = await that.contractService.loadFile(that.hashLoadedFile,that.encryptedFileAddress,that.encryptedSessionKeyAddress,escrowAddress);
 
           if (result) {
             that.loadFileEnabled = false;
@@ -155,7 +158,11 @@ export class SalesComponent implements OnInit {
    });
   });
 
+        }   
         
+        else {
+          that.alertService.openDialog("Non hai caricato il file corretto",true); 
+        }
       
       }    
     }

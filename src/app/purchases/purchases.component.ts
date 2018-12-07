@@ -71,6 +71,14 @@ export class PurchasesComponent implements OnInit {
   downloadFile(item:Escrow) {
     console.log(item);
     console.log(this.privateKey);
+
+    //this.contractService.downloadKey();
+    //this.contractService.downloadFile();
+    //this.commonService.decryptFile();
+    //this.commonService.hashing();
+    //this.contractService.withdraw();
+
+
   }
 
 }
