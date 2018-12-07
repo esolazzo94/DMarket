@@ -11,6 +11,7 @@ State public state;
 address public buyer;    
 bytes32 public hashFile;
 bytes32 private hashEncryptedFile;
+string public keyAddress;
 string private addressEncryptedFile; // DA VALUTARE
 address private marketAddress; 
 uint256 private expiration;
@@ -34,12 +35,14 @@ function setPayee(address p) public onlyPrimary() {
  payee = p;
 }
 
-function setFile(bytes32 hFile, bytes32 hEncryptedFile) public onlyPayee() payable {
+function setFile(bytes32 hFile, bytes32 hEncryptedFile, string key) public payable onlyPayee()  {
     //bytes32 hFile = marketIstance.convert(hFileString);
     //bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
     require(depositPayee == 0);
     require(hashFile == hFile);
     hashEncryptedFile = hEncryptedFile;
+    keyAddress = key;
+    deposit(msg.sender);
     depositPayee = msg.value;
     state = State.Prodotto_disponibile;
 }
@@ -48,10 +51,10 @@ function getHashAddress() public view onlyPrimary() returns(bytes32) {
     return hashEncryptedFile;
 }
 
-function depositFromBuyer() public onlyPrimary() {
+function depositFromBuyer() public payable onlyPrimary() {
     require(depositBuyer == 0);
+    deposit(msg.sender);
     depositBuyer = depositsOf(msg.sender);
-    //MarketEscrow(address(this)).deposit.value(msg.value)(msg.sender);
     state = State.In_attesa_del_venditore;
 }
 

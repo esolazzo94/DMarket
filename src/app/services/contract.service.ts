@@ -180,20 +180,17 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
                   if(error) resolve(false);
                 });
                 
-                contract.deposit.sendTransaction(localUser.address,{from:localUser.address,gas : 2200000, value:1000000000000000000},async function(error,result){
+                contract.depositFromBuyer.sendTransaction({from:localUser.address,gas : 2200000, value:1000000000000000000},async function(error,result){
                   if(!error){
-                    contract.depositFromBuyer.sendTransaction({from:localUser.address,gas : 2200000},async function(error,result){
-                      if(!error) {
-                        that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
-                          console.log(error,result);
-                        });
-                        that.contractInstance.addUserPurchase.sendTransaction(contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
-                          console.log(error,result);
-                          resolve(true);
-                        });
-                      }
-                      else resolve(false);
-                    });               
+                                  
+                      that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
+                        console.log(error,result);
+                      });
+                      that.contractInstance.addUserPurchase.sendTransaction(contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
+                        console.log(error,result);
+                        resolve(true);
+                      });
+                                       
                     await that.getBalance(localUser.address);
                     
                   }
