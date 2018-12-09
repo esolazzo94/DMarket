@@ -36,7 +36,7 @@ export class ContractService {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       this.web3 = authenticationService.getWeb3();
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
+      this.contractInstance = contract.at('0x962f0fa86004b264596b793b1b25d621765aaef3');
       this.balance$ = new Subject();
    }
 
@@ -44,8 +44,9 @@ export class ContractService {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
     var address;
-    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
-    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
+    //if (navigator.appVersion.indexOf("Edge") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
+    else address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -161,7 +162,7 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
       var escrowContract = this.web3.eth.contract(abi);
       var contractAddress;
 
-      var escrowIstance = escrowContract.new('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79',hash,
+      var escrowIstance = escrowContract.new('0x962f0fa86004b264596b793b1b25d621765aaef3',hash,
         {
             from: localUser.address,
             gas: 4712388,
@@ -206,8 +207,9 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
     var address;
-    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
-    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
+    //if (navigator.appVersion.indexOf("Edge") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
+    else address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
@@ -539,13 +541,13 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
     return byteArray;
   }
 
-  public loadFile(hashLoadedFile:string,encryptedFileAddress:string, encryptedSessionKeyAddress:string, escrowAddress:string): Promise<boolean> {
+  public loadFile(hashLoadedFile:string,encryptedFileAddress:string, encryptedSessionKeyAddress:string,name:string, escrowAddress:string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       var localUser = this.loadUser();
       var that =this;
       var escrowContractInstance = this.loadEscrowContract(escrowAddress);
 
-      escrowContractInstance.setFile.sendTransaction(hashLoadedFile,encryptedFileAddress,encryptedSessionKeyAddress,{from:localUser.address,gas : 2200000, value:1000000000000000000}, function(error,result){
+      escrowContractInstance.setFile.sendTransaction(hashLoadedFile,encryptedFileAddress,encryptedSessionKeyAddress,name,{from:localUser.address,gas : 2200000, value:1000000000000000000}, function(error,result){
         if(result) resolve(true);
         else resolve(false);
         that.getBalance(localUser.address);
@@ -579,6 +581,39 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
         }
       });
 
+    });
+  }
+
+  public downloadFile(escrowAddress:string): Promise<Array<Uint8Array>>  {
+    return new Promise<Array<Uint8Array>>((resolve) => {
+      var localUser = this.loadUser();
+      var escrowContractIstance = this.loadEscrowContract(escrowAddress);
+
+      escrowContractIstance.addressEncryptedFile.call({ from: localUser.address }, function (error,result){
+
+        if(!error) {
+          const ipfs = new IpfsApi('ipfs.infura.io', '5001', {protocol: 'https'});
+          ipfs.files.get(result, function (err, file) {
+            var readedObject = Array<Uint8Array>();
+            //return ivBytes and file
+            readedObject[0] = file[0].content.slice(0,16);
+            readedObject[1] = file[0].content.slice(16);
+            resolve(readedObject);
+        });
+        }
+      });
+
+    });
+  }
+
+  public getFileName(escrowAddress:string): Promise<string>  {
+    return new Promise<string>((resolve) => {
+      var localUser = this.loadUser();
+      var escrowContractIstance = this.loadEscrowContract(escrowAddress);
+
+      escrowContractIstance.nameFile.call({ from: localUser.address }, function (error,result){
+        if(!error) resolve(result);
+      });
     });
   }
 

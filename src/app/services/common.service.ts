@@ -18,7 +18,6 @@ export class CommonService {
     ipfs.files.add(ipfs.types.Buffer.from(file), (err, result) => {
                     resolve(result[0].hash);
                 }); 
-
     });
   }
 

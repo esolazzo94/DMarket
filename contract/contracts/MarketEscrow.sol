@@ -13,6 +13,7 @@ bytes32 public hashFile;
 bytes32 private hashEncryptedFile; // DA VALUTARE
 string public keyAddress;
 string public addressEncryptedFile; 
+string public nameFile; 
 address private marketAddress; 
 uint256 private expiration;
 address public payee;
@@ -37,7 +38,7 @@ function setPayee(address p) public onlyPrimary() {
  payee = p;
 }
 
-function setFile(bytes32 hFile, string hEncryptedFile, string key) public payable onlyPayee()  {
+function setFile(bytes32 hFile, string hEncryptedFile, string key, string name) public payable onlyPayee()  {
     //bytes32 hFile = marketIstance.convert(hFileString);
     //bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
     /*require(hashFile == hFile);
@@ -48,6 +49,7 @@ function setFile(bytes32 hFile, string hEncryptedFile, string key) public payabl
     //require(hashFile == hFile);
     addressEncryptedFile = hEncryptedFile;
     keyAddress = key;
+    nameFile = name;
     uint256 amount = msg.value;
     _depositSeller = _depositSeller.add(amount);
     //deposit(msg.sender);

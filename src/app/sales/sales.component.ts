@@ -20,6 +20,7 @@ export class SalesComponent implements OnInit {
   private encryptedSessionKeyAddress:string;
   private hashOriginalFile:string;
   private hashLoadedFile:string;
+  private filename:string;
 
   constructor(private contractService: ContractService,
     private commonService: CommonService,
@@ -77,11 +78,12 @@ export class SalesComponent implements OnInit {
     var that = this;
     const reader = new FileReader(); 
     if(event.target.files && event.target.files.length === 1) {
-      const [file] = event.target.files;
+      const file = event.target.files;
       reader.readAsArrayBuffer(event.target.files[0]);
   
-      reader.onloadend = async () => {
-        var fileBytes = reader.result;
+      reader.onloadend = async (event) => {
+        var fileBytes = new Uint8Array(reader.result);
+        this.filename = file[0].name;
 
         that.hashLoadedFile = await that.commonService.hashing(fileBytes);
 
@@ -110,12 +112,11 @@ export class SalesComponent implements OnInit {
       window.crypto.subtle.encrypt(
         {name: "AES-CBC", iv: ivBytes}, sessionKey, fileBytes
     ).then(async (ciphertextBuffer) => {
-        // Build a Blob with the 16-byte IV followed by the ciphertext
-        var cipher = [ivBytes, new Uint8Array(ciphertextBuffer)];
-        var blob = new Blob(
-            [ivBytes, new Uint8Array(ciphertextBuffer)],
-            {type: "application/octet-stream"}
-        );
+
+        var cipher = new Uint8Array(ivBytes.length + new Uint8Array(ciphertextBuffer).length);
+        cipher.set(ivBytes);
+        cipher.set(new Uint8Array(ciphertextBuffer), ivBytes.length);
+
         that.encryptedFileAddress = await that.commonService.sendFile(cipher);
 
 
@@ -138,7 +139,7 @@ export class SalesComponent implements OnInit {
 
           that.encryptedSessionKeyAddress = await that.commonService.sendFile(encryptedSessionKeyBase64);
 
-          var result = await that.contractService.loadFile(that.hashLoadedFile,that.encryptedFileAddress,that.encryptedSessionKeyAddress,escrowAddress);
+          var result = await that.contractService.loadFile(that.hashLoadedFile,that.encryptedFileAddress,that.encryptedSessionKeyAddress,that.filename,escrowAddress);
 
           if (result) {
             that.loadFileEnabled = false;

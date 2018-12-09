@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../services/contract.service';
 import { CommonService } from '../services/common.service';
 import { AlertService } from '../services/alert.service';
+import { saveAs } from 'file-saver';
 
 import { Escrow } from '../models/escrow.model';
 
@@ -69,6 +70,7 @@ export class PurchasesComponent implements OnInit {
   }
 
   async downloadFile(item:Escrow) {
+    var that = this;
     var encryptedKey = await this.contractService.downloadkey(item.escrowAddress);
 
     var encryptedSessionKeyBytes = this.contractService.base64ToByteArray(encryptedKey);
@@ -79,10 +81,26 @@ export class PurchasesComponent implements OnInit {
       window.crypto.subtle.importKey(
         // We can't use the session key until it is in a CryptoKey object
         "raw", sessionKeyBuffer, {name: "AES-CBC", length: 256}, false, ["decrypt"]
-    ).then(function(sessionKey){
+    ).then(async(sessionKey)=>{
       
         console.log(sessionKey);
         //Decrypt File
+        var fileBytes = await that.contractService.downloadFile(item.escrowAddress);
+
+        window.crypto.subtle.decrypt(
+          {name: "AES-CBC", iv: fileBytes[0]}, sessionKey, fileBytes[1]
+      ).then(async(plaintextBuffer)=> {
+          var blob = new Blob(
+              [new Uint8Array(plaintextBuffer)],
+              {type: "application/octet-stream"}
+          );
+
+        var fileName = await that.contractService.getFileName(item.escrowAddress);
+        var hash = await this.commonService.hashing(plaintextBuffer);
+
+        saveAs(blob, fileName);
+      
+      });
 
     });
 
@@ -90,9 +108,7 @@ export class PurchasesComponent implements OnInit {
     catch(e) {
       this.alertService.openDialog("Hai caricato la chiave sbagliata",true);  
     }
-    //this.contractService.downloadFile();
-    //this.commonService.decryptFile();
-    //this.commonService.hashing();
+
     //this.contractService.withdraw();
   }
 
