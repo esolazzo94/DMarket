@@ -16,7 +16,7 @@
   <mat-sidenav-content>
     <mat-toolbar color="primary">
       <button  mat-icon-button onclick="this.blur()" (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
-      <span>DMarket</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a (click)="reset();loadInfo=true;"><span >DMarket</span>&nbsp;&nbsp;&nbsp;<img src="../../favicon.ico" width="40px" height="40px"/></a>
       <span class="spacer"></span>      
       <a (click)="getUserView();"><img width="70px" height="50px" src={{localUser.avatar}}></a>
       &nbsp;&nbsp;
@@ -31,6 +31,7 @@
       <app-products class="containers" *ngIf="loadProducts"></app-products>
       <app-purchases class="containers" *ngIf="loadPurchases"></app-purchases>
       <app-sales class="containers" *ngIf="loadSales"></app-sales>     
+      <app-info class="containers" *ngIf="loadInfo"></app-info> 
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

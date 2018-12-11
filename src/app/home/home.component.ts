@@ -29,6 +29,7 @@ export class HomeComponent {
   public loadProducts = false;
   public loadPurchases = false;
   public loadSales = false;
+  public loadInfo = true;
   public balance: string;
 
   reset(){
@@ -36,7 +37,8 @@ export class HomeComponent {
     this.loadUser = false;
     this.loadProducts = false;
     this.loadPurchases = false;
-    this.loadSales = false; 
+    this.loadSales = false;
+    this.loadInfo = false; 
     this.ngOnInit();
   }
     

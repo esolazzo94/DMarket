@@ -21,6 +21,7 @@ import { MarketComponent } from './market/market.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { AddProductComponent } from './add-product/add-product.component';
 import { AddSpacesPipe } from './add-spaces.pipe';
+import { InfoComponent } from './info/info.component';
 
 
 @NgModule({
@@ -38,6 +39,7 @@ import { AddSpacesPipe } from './add-spaces.pipe';
     ProductDetailComponent,
     AddProductComponent,
     AddSpacesPipe,
+    InfoComponent,
   ],
   imports: [
     BrowserModule,
