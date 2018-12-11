@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../services/contract.service';
 import { CommonService } from '../services/common.service';
 import { AlertService } from '../services/alert.service';
+import { HomeComponent } from '../home/home.component';
 import { saveAs } from 'file-saver';
 
 import { Escrow } from '../models/escrow.model';
@@ -22,7 +23,8 @@ export class PurchasesComponent implements OnInit {
 
   constructor(private contractService: ContractService,
     private commonService: CommonService,
-    private alertService: AlertService) { 
+    private alertService: AlertService,
+    private homeComponent: HomeComponent) { 
       this.escrows = [];
     }
 
@@ -135,7 +137,10 @@ export class PurchasesComponent implements OnInit {
       that.spinnerFlag = false;
     }
 
-    //this.contractService.withdraw();
+  }
+
+  public getUserView(address:string) {
+    this.homeComponent.getUserView(address);
   }
 
 }

@@ -19,6 +19,8 @@ import { User } from '../models/user.model';
 export class HomeComponent {
 
 
+  public viewUser:string;
+
   public localUser;
   public address;
   public loadMarket = false;
@@ -47,6 +49,7 @@ export class HomeComponent {
       this.web3 = authenticationService.getWeb3();
       this.localUser = new User;
       this.localUser = JSON.parse(localStorage.getItem('currentUser'));
+      this.viewUser = this.localUser.address;
       this.contractService.balance$.subscribe(result =>{
       this.balance = result;
       });  
@@ -62,6 +65,13 @@ export class HomeComponent {
   exit() {
     this.authenticationService.logout();  
     this.router.navigate(['/login']);
+  }
+
+  public getUserView(address?: string) {
+    if(address) this.viewUser = address;
+    else this.viewUser = this.localUser.address;
+    this.reset();
+    this.loadUser=true;
   }
 
   

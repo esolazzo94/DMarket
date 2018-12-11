@@ -4,7 +4,7 @@
       <mat-panel-title>Prodotto {{item.productHash}}</mat-panel-title>
       <mat-panel-description>{{item.state | addSpaces}}</mat-panel-description>
     </mat-expansion-panel-header>
-    <p>Acquirente {{item.buyer}}</p>
+    <p><a style="cursor:pointer;" (click)="getUserView(item.buyer);">Acquirente {{item.buyer}}</a></p>
   
     <div *ngIf="item.state=='In_attesa_del_venditore'">
         <!--mat-divider></mat-divider><br>

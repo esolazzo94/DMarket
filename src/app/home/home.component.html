@@ -1,3 +1,4 @@
+<body onclick="sidenav.toggle()" >
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav
     #sidenav
@@ -18,19 +19,20 @@
       <button  mat-icon-button onclick="this.blur()" (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
       <span>DMarket</span>
       <span class="spacer"></span>      
-      <a (click)="reset();loadUser=true;"><img width="70px" height="50px" src={{localUser.avatar}}></a>
+      <a (click)="getUserView();"><img width="70px" height="50px" src={{localUser.avatar}}></a>
       &nbsp;&nbsp;
-      <a (click)="reset();loadUser=true;">{{localUser.name}}<br>{{localUser.address}}</a>
+      <a (click)="getUserView();">{{localUser.name}}<br>{{localUser.address}}</a>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <a (click)="reset();loadUser=true;" *ngIf="balance">ETH<br>{{balance}}</a>
-      <a (click)="reset();loadUser=true;" mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
+      <a (click)="getUserView();" *ngIf="balance">ETH<br>{{balance}}</a>
+      <a mat-button (click)="exit()"><mat-icon>cancel</mat-icon>Esci</a>
     </mat-toolbar>
     <div #container>
       <app-market class="containers" *ngIf="loadMarket"></app-market>
-      <app-user class="containers" *ngIf="loadUser"></app-user>
+      <app-user [user]="viewUser" class="containers" *ngIf="loadUser"></app-user>
       <app-products class="containers" *ngIf="loadProducts"></app-products>
       <app-purchases class="containers" *ngIf="loadPurchases"></app-purchases>
       <app-sales class="containers" *ngIf="loadSales"></app-sales>     
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
+</body>

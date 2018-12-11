@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../services/contract.service';
 import { CommonService } from '../services/common.service';
 import { AlertService } from '../services/alert.service';
+import { HomeComponent } from '../home/home.component';
 
 import { Escrow } from '../models/escrow.model';
 
@@ -25,7 +26,8 @@ export class SalesComponent implements OnInit {
 
   constructor(private contractService: ContractService,
     private commonService: CommonService,
-    private alertService: AlertService) {
+    private alertService: AlertService,
+    private homeComponent: HomeComponent) {
       this.escrows = [];
       this.encryptedFileAddress = null;
       this.encryptedSessionKeyAddress = null;
@@ -183,9 +185,10 @@ export class SalesComponent implements OnInit {
      }
    } 
 
+  }
 
-    
-
+  public getUserView(address:string) {
+    this.homeComponent.getUserView(address);
   }
 
 }

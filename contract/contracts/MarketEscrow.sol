@@ -130,7 +130,7 @@ function refundBuyer(address payee) public onlyPrimary() {
     }       
 }*/
 
-function withdraw(bytes32 hFile) public onlyBuyer() {
+function withdraw(bytes32 hFile) public onlyBuyer() returns(bool) {
     if(hashFile == hFile){
         uint256 paymentSeller = _depositBuyer;
         uint256 paymentBuyer = _depositSeller;
@@ -138,9 +138,11 @@ function withdraw(bytes32 hFile) public onlyBuyer() {
         payee.transfer(paymentSeller);
         msg.sender.transfer(paymentBuyer);
         state = State.Operazione_conclusa;
+        return true;
     }
     else {
         state = State.Errore_nella_transazione;
+        return false;
     }
     
   }
