@@ -374,7 +374,7 @@ getUserPurchase(address:string, index:number): Promise<Escrow> {
         if (error) that.alertService.openDialog("Errore",true);
         else {
           escrow.seller = result;
-          escrowContractInstance.primary.call({ from: address },function(error,result){
+          escrowContractInstance.buyer.call({ from: address },function(error,result){
             if (error) that.alertService.openDialog("Errore",true);
             else {
               escrow.buyer = result;
@@ -436,7 +436,7 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
         if (error) that.alertService.openDialog("Errore",true);
         else {
           escrow.seller = result;
-          escrowContractInstance.primary.call({ from: address },function(error,result){
+          escrowContractInstance.buyer.call({ from: address },function(error,result){
             if (error) that.alertService.openDialog("Errore",true);
             else {
               escrow.buyer = result;

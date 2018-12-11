@@ -1,40 +1,48 @@
 pragma solidity ^0.4.23;
 
-import '../../node_modules/openzeppelin-solidity/contracts/payment/ConditionalEscrow.sol';
+//import '../../node_modules/openzeppelin-solidity/contracts/payment/ConditionalEscrow.sol';
+import '../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol';
 import './Market.sol';
 
-contract MarketEscrow is ConditionalEscrow {
+contract MarketEscrow /*is ConditionalEscrow*/ {
 
-enum State {Contratto_creato,In_attesa_del_venditore,Prodotto_disponibile,In_attesa_del_compratore,Operazione_conclusa}
+using SafeMath for uint256;
+
+enum State {Contratto_creato,In_attesa_del_venditore,Prodotto_disponibile,Errore_nella_transazione,Operazione_conclusa}
 State public state;
     
-address public buyer;    
+ 
 bytes32 public hashFile;
-bytes32 private hashEncryptedFile; // DA VALUTARE
+
 string public keyAddress;
 string public addressEncryptedFile; 
 string public nameFile; 
-address private marketAddress; 
-uint256 private expiration;
-address public payee;
+address private _marketAddress; 
+uint256 private _expiration;
+
 uint256 private depositPayee;
 uint256 private depositBuyer;
-Market private marketIstance;
+Market private _marketIstance;
 
 uint256 private _depositSeller;
+uint256 private _depositBuyer;
+uint256 private _payment;
+
+address public payee;
+address public buyer;
     
 constructor(address addr,bytes32 hFile) public {
-    expiration = now + 86400;
-    marketAddress = addr;
-    depositPayee = 0;
-    depositBuyer = 0;
+    _expiration = now + 86400;
+    _marketAddress = addr;
+    _depositSeller = 0;
+    _depositBuyer = 0;
     buyer = msg.sender;
     hashFile = hFile;
-    marketIstance = Market(marketAddress);
+    _marketIstance = Market(_marketAddress);
     state = State.Contratto_creato;
     }    
     
-function setPayee(address p) public onlyPrimary() {
+function setPayee(address p) public onlyBuyer() {
  payee = p;
 }
 
@@ -46,7 +54,7 @@ function setFile(bytes32 hFile, string hEncryptedFile, string key, string name) 
     keyAddress = key;
     deposit(msg.sender);
     state = State.Prodotto_disponibile;*/
-    //require(hashFile == hFile);
+    require(hashFile == hFile);
     addressEncryptedFile = hEncryptedFile;
     keyAddress = key;
     nameFile = name;
@@ -56,25 +64,27 @@ function setFile(bytes32 hFile, string hEncryptedFile, string key, string name) 
     //depositPayee = msg.value;
     state = State.Prodotto_disponibile;
 }
-
-function getHashAddress() public view onlyPrimary() returns(bytes32) {
+/*
+function getHashAddress() public view returns(bytes32) {
     return hashEncryptedFile;
-}
+}*/
 
-function depositFromBuyer() public payable onlyPrimary() {
-    require(depositBuyer == 0);
+function depositFromBuyer() public payable onlyBuyer() {
+    /*require(depositBuyer == 0);
     deposit(msg.sender);
-    depositBuyer = depositsOf(msg.sender);
+    depositBuyer = depositsOf(msg.sender);*/
+    uint256 amount = msg.value;
+    _depositBuyer = _depositBuyer.add(amount);
     state = State.In_attesa_del_venditore;
 }
-
+/*
 function depositFromSeller() public payable onlyPayee() {
     
     deposit(msg.sender);
     
     state = State.In_attesa_del_venditore;
-}
-
+}*/
+/*
 function withdrawalAllowed(address payee) public view returns (bool) {
       
         address h = marketIstance.getEscrowAddress(hashFile,this.primary());
@@ -115,12 +125,32 @@ function refundBuyer(address payee) public onlyPrimary() {
         state = State.Operazione_conclusa;
         selfdestruct(msg.sender);
     }       
+}*/
+
+function withdraw(bytes32 hFile) public onlyBuyer() {
+    require(hashFile == hFile);
+    resetDeposit();
+    payee.transfer(_depositSeller);
+    msg.sender.transfer(_depositBuyer);
+    
+    //super.withdraw(payee);
+    state = State.Operazione_conclusa;
+  }
+
+  function resetDeposit() private {
+    depositPayee = 0;
+    depositBuyer = 0;
 }
 
 modifier onlyPayee() {
     require(msg.sender == payee);
     _;
   }
+
+modifier onlyBuyer() {
+    require(msg.sender == buyer);
+    _;
+ }
 
 
 }
