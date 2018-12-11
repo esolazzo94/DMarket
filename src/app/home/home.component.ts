@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { Router, ActivatedRoute} from '@angular/router';
 import Web3 from 'web3';
 
+import { UserComponent } from '../user/user.component';
 import { AlertService } from '../services/alert.service';
 import { ContractService } from '../services/contract.service';
 import { AuthenticationService, WEB3 } from '../services/authentication.service';
@@ -45,6 +46,7 @@ export class HomeComponent {
     private authenticationService: AuthenticationService,
     private alertService: AlertService,
     private contractService: ContractService,
+    private userComponent: UserComponent,
     @Inject(WEB3) private web3: Web3) {
       this.web3 = authenticationService.getWeb3();
       this.localUser = new User;
@@ -68,9 +70,9 @@ export class HomeComponent {
   }
 
   public getUserView(address?: string) {
+    this.reset();
     if(address) this.viewUser = address;
     else this.viewUser = this.localUser.address;
-    this.reset();
     this.loadUser=true;
   }
 

@@ -54,7 +54,7 @@ import { AddSpacesPipe } from './add-spaces.pipe';
     ReactiveFormsModule
   ],
   entryComponents: [AppComponent,AlertDialog,MessageDialog],
-  providers: [],
+  providers: [UserComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

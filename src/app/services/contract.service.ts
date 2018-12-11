@@ -61,6 +61,7 @@ export class ContractService {
                 loginUser.publicKey = result[0];
                 loginUser.productTotalLenght = result[4].toNumber();
                 loginUser.purchaseTotalLenght = result[5].toNumber();
+                loginUser.saleTotalLenght = result[6].toNumber();
                 localStorage.setItem('currentUser', JSON.stringify(loginUser));
                 var localUser = localStorage.getItem('currentUser');
                 that.router.navigate([returnUrl]);                
@@ -73,6 +74,30 @@ export class ContractService {
         that.alertService.openDialog("Errore nel login\n"+error.message,true);
       }
     }); 
+   }
+
+   getUser(address:string):Promise<User> {
+    return new Promise<User>(resolve=>{
+    var user = new User;
+    user.address = address;
+    var localUser = new User;
+    localUser = this.loadUser();
+
+    this.contractInstance.getUser(address,{ from: localUser.address},function(error,result){
+      if (result[0] === "") {
+        resolve(null);
+      }
+      else {
+        user.name = result[1];
+        user.avatar = result[2];
+        user.publicKey = result[0];
+        user.productTotalLenght = result[4].toNumber();
+        user.purchaseTotalLenght = result[5].toNumber();
+        user.saleTotalLenght = result[6].toNumber();
+        resolve(user); 
+      }
+     });
+    });
    }
 
    async updateUser():Promise<User> {
@@ -91,6 +116,7 @@ export class ContractService {
                 localUser.publicKey = result[0];
                 localUser.productTotalLenght = result[4].toNumber();
                 localUser.purchaseTotalLenght = result[5].toNumber();
+                localUser.saleTotalLenght = result[6].toNumber();
                resolve(localUser);              
           } 
           else {

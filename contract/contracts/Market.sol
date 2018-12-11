@@ -20,6 +20,7 @@ struct user {
   uint256 productsLenght;
   address[] purchaseLUT;
   uint256 purchaseLUTLenght;
+  uint256 saleNumber;
   bool blocked;
 }
 
@@ -33,6 +34,7 @@ function addUser(address userAddress, string key, string name, string avatar) pu
   users[userAddress].blocked = false;
   users[userAddress].productsLenght = 0;  
   users[userAddress].purchaseLUTLenght = 0; 
+  users[userAddress].saleNumber = 0;
 }
 
 function addUserPurchase(address escrowAddress) public {
@@ -41,8 +43,8 @@ function addUserPurchase(address escrowAddress) public {
 }
 
 
-function getUser(address userAddress) public view returns (string,string,string,bool,uint256,uint256) {
-  return (users[userAddress].publicKey,users[userAddress].name,users[userAddress].avatar,users[userAddress].blocked,users[userAddress].productsLenght,users[userAddress].purchaseLUTLenght);
+function getUser(address userAddress) public view returns (string,string,string,bool,uint256,uint256,uint256) {
+  return (users[userAddress].publicKey,users[userAddress].name,users[userAddress].avatar,users[userAddress].blocked,users[userAddress].productsLenght,users[userAddress].purchaseLUTLenght,users[userAddress].saleNumber);
 }
 
 
@@ -92,6 +94,7 @@ function purchase(bytes32 hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
   products[hashFile].purchaseLUT.push(escrowAddress);
   products[hashFile].purchaseLUTLenght++;
+  users[products[hashFile].seller].saleNumber++;
 }
 
 function getEscrowAddress(bytes32 hashFile, address buyer) returns(address) {

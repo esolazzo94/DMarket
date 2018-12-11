@@ -1,4 +1,20 @@
-<p>
-  user works!
-  {{user}}
-</p>
+<mat-card>
+  Utente: {{actualUser.name}}&nbsp;&nbsp;&nbsp;&nbsp;<img src={{actualUser.avatar}} width="150px" height="100px">
+  <br>
+  <mat-divider></mat-divider>
+  <br>
+  Address: {{actualUser.address}}
+  <br>
+  <mat-divider></mat-divider>
+  <br>
+  Prodotti in vendita: {{actualUser.productTotalLenght}}
+  <br>
+  <mat-divider></mat-divider>
+  <br>
+  Numero Acquisti: {{actualUser.purchaseTotalLenght}}
+  <br>
+  <mat-divider></mat-divider>
+  <br>
+  Numero Vendite: {{actualUser.saleTotalLenght}}
+ 
+</mat-card>

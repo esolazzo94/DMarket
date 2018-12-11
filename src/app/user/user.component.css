@@ -1,0 +1,9 @@
+mat-card {
+    width: 90%;
+    margin-left: 3%;
+    margin-top: 2%;
+  }
+
+  img {
+    border-radius: 50%;
+  }

@@ -5,4 +5,5 @@ export class User {
     publicKey: string;
     productTotalLenght: number;
     purchaseTotalLenght: number;
+    saleTotalLenght: number;
 }
