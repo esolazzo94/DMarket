@@ -26,7 +26,7 @@ Market private _marketIstance;
 
 uint256 private _depositSeller;
 uint256 private _depositBuyer;
-uint256 private _payment;
+uint256 public price;
 
 address public payee;
 address public buyer;
@@ -39,6 +39,7 @@ constructor(address addr,bytes32 hFile) public {
     buyer = msg.sender;
     hashFile = hFile;
     _marketIstance = Market(_marketAddress);
+    price = _marketIstance.getProductPrice(hashFile);
     state = State.Contratto_creato;
     }    
     
@@ -55,6 +56,7 @@ function setFile(bytes32 hFile, string hEncryptedFile, string key, string name) 
     deposit(msg.sender);
     state = State.Prodotto_disponibile;*/
     require(hashFile == hFile);
+    require(msg.value == price);
     addressEncryptedFile = hEncryptedFile;
     keyAddress = key;
     nameFile = name;
@@ -73,6 +75,7 @@ function depositFromBuyer() public payable onlyBuyer() {
     /*require(depositBuyer == 0);
     deposit(msg.sender);
     depositBuyer = depositsOf(msg.sender);*/
+    require(msg.value == 2*price);
     uint256 amount = msg.value;
     _depositBuyer = _depositBuyer.add(amount);
     state = State.In_attesa_del_venditore;
@@ -128,18 +131,23 @@ function refundBuyer(address payee) public onlyPrimary() {
 }*/
 
 function withdraw(bytes32 hFile) public onlyBuyer() {
-    require(hashFile == hFile);
-    resetDeposit();
-    payee.transfer(_depositSeller);
-    msg.sender.transfer(_depositBuyer);
+    if(hashFile == hFile){
+        uint256 paymentSeller = _depositBuyer;
+        uint256 paymentBuyer = _depositSeller;
+        resetDeposit();
+        payee.transfer(paymentSeller);
+        msg.sender.transfer(paymentBuyer);
+        state = State.Operazione_conclusa;
+    }
+    else {
+        state = State.Errore_nella_transazione;
+    }
     
-    //super.withdraw(payee);
-    state = State.Operazione_conclusa;
   }
 
   function resetDeposit() private {
-    depositPayee = 0;
-    depositBuyer = 0;
+    _depositSeller = 0;
+    _depositBuyer = 0;
 }
 
 modifier onlyPayee() {

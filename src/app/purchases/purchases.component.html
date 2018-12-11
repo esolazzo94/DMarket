@@ -15,6 +15,7 @@
         <br>
       <mat-divider></mat-divider><br><br>
           <button mat-raised-button color="primary" (click)="downloadFile(item)" disabled={{!downloadFileEnabled}}>Scarica File</button> 
+          <mat-spinner *ngIf="spinnerFlag"></mat-spinner>
   </div>
 
 </mat-expansion-panel>

@@ -6,4 +6,4 @@ export class Escrow {
     escrowAddress:string;
 }
 
-export enum State {Contratto_creato,In_attesa_del_venditore,Prodotto_disponibile,In_attesa_del_compratore,Operazione_conclusa}
+export enum State {Contratto_creato,In_attesa_del_venditore,Prodotto_disponibile,Errore_nella_transazione,Operazione_conclusa}

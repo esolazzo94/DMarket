@@ -36,7 +36,7 @@ export class ContractService {
       var abi = JSON.parse(JSON.stringify(data)).abi;
       this.web3 = authenticationService.getWeb3();
       var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x962f0fa86004b264596b793b1b25d621765aaef3');
+      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
       this.balance$ = new Subject();
    }
 
@@ -44,9 +44,9 @@ export class ContractService {
     const decodedId = uportconnect.MNID.decode(addressLogin);
     //var address = decodedId.address;
     var address;
-    if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
-    //if (navigator.appVersion.indexOf("Edge") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
-    else address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
+    //if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
+    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -152,7 +152,7 @@ export class ContractService {
    })
   }
 
-buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
+buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
     return new Promise<boolean>(resolve=>{
       var localUser = new User;
       var that = this;
@@ -162,7 +162,7 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
       var escrowContract = this.web3.eth.contract(abi);
       var contractAddress;
 
-      var escrowIstance = escrowContract.new('0x962f0fa86004b264596b793b1b25d621765aaef3',hash,
+      var escrowIstance = escrowContract.new('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79',hash,
         {
             from: localUser.address,
             gas: 4712388,
@@ -181,7 +181,7 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
                   if(error) resolve(false);
                 });
                 
-                contract.depositFromBuyer.sendTransaction({from:localUser.address,gas : 2200000, value:1000000000000000000},async function(error,result){
+                contract.depositFromBuyer.sendTransaction({from:localUser.address,gas : 2200000, value:that.web3.toWei(price*2,'ether')},async function(error,result){
                   if(!error){
                                   
                       that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
@@ -207,9 +207,9 @@ buyProduct(sellerAddress:string, hash:string):Promise<boolean> {
     const decodedId = uportconnect.MNID.decode(user.address);
     //var address = decodedId.address;
     var address;
-    if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
-    //if (navigator.appVersion.indexOf("Edge") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
-    else address = "0xB38A437126A114E88419630DD6572f9A184Ca64f";
+    //if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
+    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
@@ -547,12 +547,17 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
       var that =this;
       var escrowContractInstance = this.loadEscrowContract(escrowAddress);
 
-      escrowContractInstance.setFile.sendTransaction(hashLoadedFile,encryptedFileAddress,encryptedSessionKeyAddress,name,{from:localUser.address,gas : 2200000, value:1000000000000000000}, function(error,result){
-        if(result) resolve(true);
-        else resolve(false);
-        that.getBalance(localUser.address);
-      });
+      escrowContractInstance.price.call ({from:localUser.address},function(error,result) {
 
+        if(!error) {
+          escrowContractInstance.setFile.sendTransaction(hashLoadedFile,encryptedFileAddress,encryptedSessionKeyAddress,name,{from:localUser.address,gas : 2200000, value:result}, function(error,result){
+            if(result) resolve(true);
+            else resolve(false);
+            that.getBalance(localUser.address);
+          });
+        }
+
+      });
     });
   }
 
@@ -614,6 +619,21 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
       escrowContractIstance.nameFile.call({ from: localUser.address }, function (error,result){
         if(!error) resolve(result);
       });
+    });
+  }
+
+  public withdraw(escrowAddress:string,hash:string): Promise<boolean>  {
+    return new Promise<boolean>((resolve) => {
+      var that = this;
+      var localUser = this.loadUser();
+      var escrowContractIstance = this.loadEscrowContract(escrowAddress);
+
+      escrowContractIstance.withdraw.sendTransaction(hash,{from:localUser.address,gas : 2200000}, async(error,result)=>{
+        await that.getBalance(localUser.address);
+        if (result) resolve(true);
+        else resolve(false);
+      });
+
     });
   }
 

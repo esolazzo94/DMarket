@@ -84,6 +84,10 @@ function getProductPurchase(bytes32 product, uint256 index) returns(address) {
   return products[product].purchaseLUT[index];
 }
 
+function getProductPrice(bytes32 product) returns(uint256) {
+  return products[product].price;
+}
+
 function purchase(bytes32 hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
   products[hashFile].purchaseLUT.push(escrowAddress);

@@ -15,6 +15,7 @@ export class SalesComponent implements OnInit {
   public escrows:Array<Escrow>;
   public loaded = false;
   public loadFileEnabled = true;
+  public spinnerFlag = false;
   
   private encryptedFileAddress:string;
   private encryptedSessionKeyAddress:string;
@@ -80,6 +81,7 @@ export class SalesComponent implements OnInit {
     if(event.target.files && event.target.files.length === 1) {
       const file = event.target.files;
       reader.readAsArrayBuffer(event.target.files[0]);
+      this.spinnerFlag = true;
   
       reader.onloadend = async (event) => {
         var fileBytes = new Uint8Array(reader.result);
@@ -144,11 +146,13 @@ export class SalesComponent implements OnInit {
           if (result) {
             that.loadFileEnabled = false;
             that.escrows = await that.contractService.getUserSales();
-            that.alertService.openDialog("File caricato",false);          
+            that.alertService.openDialog("File caricato",false);    
+            that.spinnerFlag = false;      
           }
 
           else {
             that.alertService.openDialog("Errore nel caricamento del file",true);
+            that.spinnerFlag = false;
           }
 
           
@@ -163,16 +167,19 @@ export class SalesComponent implements OnInit {
         
         else {
           that.alertService.openDialog("Non hai caricato il file corretto",true); 
+          that.spinnerFlag = false;
         }
       
       }    
     }
    else {
      if (event.target.files.length >= 1) {
-      this.alertService.openDialog("Puoi caricare un solo file",true);   
+      this.alertService.openDialog("Puoi caricare un solo file",true);
+      that.spinnerFlag = false;   
      }
      else {
-      this.alertService.openDialog("Errore nel caricamento file",true);  
+      this.alertService.openDialog("Errore nel caricamento file",true); 
+      that.spinnerFlag = false; 
      }
    } 
 

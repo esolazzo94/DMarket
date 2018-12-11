@@ -34,6 +34,7 @@ export class HomeComponent {
     this.loadProducts = false;
     this.loadPurchases = false;
     this.loadSales = false; 
+    this.ngOnInit();
   }
     
   constructor(

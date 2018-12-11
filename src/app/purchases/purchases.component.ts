@@ -15,6 +15,7 @@ export class PurchasesComponent implements OnInit {
 
   public escrows:Array<Escrow>;
   public loaded = false;
+  public spinnerFlag = false;
   public icon_lock = 'lock';
   public downloadFileEnabled = false;
   private privateKey: CryptoKey = null;
@@ -40,6 +41,7 @@ export class PurchasesComponent implements OnInit {
     if(event.target.files && event.target.files.length === 1) {
       const [file] = event.target.files;
       reader.readAsText(event.target.files[0]);
+      this.spinnerFlag = true;
   
       reader.onloadend = () => {
         var privateKetBytes = this.contractService.base64ToByteArray(reader.result);
@@ -54,6 +56,7 @@ export class PurchasesComponent implements OnInit {
         that.privateKey = privateKey;
         that.icon_lock = 'lock_open';
         that.downloadFileEnabled = true;
+        that.spinnerFlag = false;
       });
       
       }    
@@ -71,12 +74,17 @@ export class PurchasesComponent implements OnInit {
 
   async downloadFile(item:Escrow) {
     var that = this;
+    this.spinnerFlag = true;
     var encryptedKey = await this.contractService.downloadkey(item.escrowAddress);
 
     var encryptedSessionKeyBytes = this.contractService.base64ToByteArray(encryptedKey);
 
     try {
-      var sessionKeyBuffer = await window.crypto.subtle.decrypt({name: "RSA-OAEP"}, this.privateKey, encryptedSessionKeyBytes);
+      var sessionKeyBuffer = await window.crypto.subtle.decrypt(
+        {
+          name: "RSA-OAEP",
+          //hash: "SHA-256" //For Microsoft Edge
+        }, this.privateKey, encryptedSessionKeyBytes);
 
       window.crypto.subtle.importKey(
         // We can't use the session key until it is in a CryptoKey object
@@ -98,7 +106,23 @@ export class PurchasesComponent implements OnInit {
         var fileName = await that.contractService.getFileName(item.escrowAddress);
         var hash = await this.commonService.hashing(plaintextBuffer);
 
-        saveAs(blob, fileName);
+        var withdrawResult = await that.contractService.withdraw(item.escrowAddress,hash);
+
+        if (withdrawResult) {
+          saveAs(blob, fileName);
+          that.alertService.openDialog("File scaricato",false); 
+          that.escrows = await that.contractService.getUserPurchases();
+          that.spinnerFlag = false;
+
+        }
+
+        else {
+          that.alertService.openDialog("Errore nella conclusione della transazione",true);  
+          that.escrows = await that.contractService.getUserPurchases();
+          that.spinnerFlag = false;
+        }
+
+        
       
       });
 
@@ -106,7 +130,9 @@ export class PurchasesComponent implements OnInit {
 
     }
     catch(e) {
+      console.log(e);
       this.alertService.openDialog("Hai caricato la chiave sbagliata",true);  
+      that.spinnerFlag = false;
     }
 
     //this.contractService.withdraw();
