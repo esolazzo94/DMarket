@@ -22,9 +22,10 @@ export class AuthenticationService {
       signer: uportconnect.SimpleSigner('2fe3ac212cf3b4defc85e9e803b59bf63198f35e8f7e2254d01f07fbd81c6874'),
       network: 'rinkeby'
     });
-    this.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'));
-    //this.web3 = new Web3(this.getProvider());
-    //this.connect.provider = new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa');
+    //this.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'));
+    //this.web3 = this.connect.getWeb3();// new Web3(this.getProvider());
+    //this.web3 = new Web3(this.connect.getProvider());
+    //this.web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa'));
   }
 
   login() {
@@ -34,6 +35,10 @@ export class AuthenticationService {
     });
     this.reset();
     return result;
+  }
+
+  getConnect() {
+    return this.connect;
   }
 
   getProvider() {

@@ -26,7 +26,8 @@ export class ContractService {
   private contractInstance;
   public balance$;
 
-
+  readonly contractAddress = "0x3dfb7ec1ee107d33877b6dc362d7c65d1f09cc47";
+  //readonly contractAddress = "0x115ff25b669825bb8209ff9dcd5863d96ffc8c79";
 
   constructor(
     private alertService: AlertService,
@@ -34,9 +35,11 @@ export class ContractService {
     private router: Router,
     @Inject(WEB3) private web3: Web3) {
       var abi = JSON.parse(JSON.stringify(data)).abi;
-      this.web3 = authenticationService.getWeb3();
-      var contract = web3.eth.contract(abi);
-      this.contractInstance = contract.at('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79');
+      this.web3 = new Web3 (authenticationService.getConnect().getProvider());//authenticationService.getWeb3();
+      //this.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'));
+      //this.web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa'));
+      var contract = this.web3.eth.contract(abi);
+      this.contractInstance = contract.at(this.contractAddress);
       this.balance$ = new Subject();
    }
 
@@ -51,7 +54,7 @@ export class ContractService {
     var loginUser = new User;
     loginUser.address = address;
     that.contractInstance.getUser(address,{ from: address},function(error,result){
-      if (result === "") {
+      if (result[0] === "") {
         that.alertService.openDialog("Utente non registrato",true);
       }
       else if (!error) {
@@ -83,7 +86,7 @@ export class ContractService {
     var localUser = new User;
     localUser = this.loadUser();
 
-    this.contractInstance.getUser(address,{ from: localUser.address},function(error,result){
+    this.contractInstance.getUser.call(address,{ from: localUser.address},function(error,result){
       if (result[0] === "") {
         resolve(null);
       }
@@ -188,7 +191,7 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
       var escrowContract = this.web3.eth.contract(abi);
       var contractAddress;
 
-      var escrowIstance = escrowContract.new('0x115ff25b669825bb8209ff9dcd5863d96ffc8c79',hash,
+      var escrowIstance = escrowContract.new(this.contractAddress,hash,
         {
             from: localUser.address,
             gas: 4712388,
@@ -231,11 +234,11 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
 
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
-    //var address = decodedId.address;
+    var address = decodedId.address;
     var address;
     //if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
-    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
-    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    /*if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";*/
     var that = this;
     this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
@@ -244,7 +247,13 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
       }
       else {    
         that.createKeyPair().then((publicKey) =>{
-          that.contractInstance.addUser.sendTransaction(address,publicKey,user.name,user.avatar.uri,{ from: address,gas:3000000 },function(error,result){
+          /*that.web3.eth.sendTransaction({from:address,to: that.contractAddress, value: that.web3.toWei(0.01,'ether')},function(error,result){
+            console.log(error,result);
+          })*/
+          that.contractInstance.users("0x595645ef4bf510a1f6b9f0e281e6012aaccb228a",{ from: "0x595645ef4bf510a1f6b9f0e281e6012aaccb228a"},function(error,result){console.log(error,result)});
+
+          /*that.contractInstance.addUser.sendTransaction(address,publicKey,user.name,user.avatar.uri,{ from: "0x595645ef4bF510a1f6B9F0e281E6012aACCB228A",gas: 2546339,
+          gasPrice:2000000000 },function(error,result){
             that.getBalance(address);
             if(!error) {
             that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
@@ -252,7 +261,7 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
           else {
             that.alertService.openDialog("Errore nella registazione "+error.message,true);
           }    
-        });
+        });*/
        });       
       }
     });

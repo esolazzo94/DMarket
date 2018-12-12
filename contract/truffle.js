@@ -1,6 +1,9 @@
 //Configurazione per il deploy
 //development con Ganache
 
+var HDWalletProvider = require("truffle-hdwallet-provider");
+var mnemonic = "pill multiply dial awkward flash left always air price valley glass envelope";
+
 module.exports = {
   networks: {
     development: {
@@ -9,17 +12,10 @@ module.exports = {
       network_id: "*" // Match any network id
     },
     rinkeby: {
-      host: "localhost", // Connect to geth on the specified
-      port: 8545,
-      from: "0x49be7062738ce11455e9cede3e9cfc02ced6eda1", 
+      provider: function() { return new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa',1); },
       network_id: 4,
-      gas: 4612388 // Gas limit used for deploys
-    }/*,
-    rinkeby: {
-      provider: new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io'),
-      network_id: '*',
-      gas: 4500000,
-      gasPrice: 25000000000
-    }*/
+      gas: 2546339,
+      gasPrice:2000000000
+    }
   }
 };
