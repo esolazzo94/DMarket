@@ -1,5 +1,5 @@
 import { Injectable, InjectionToken } from '@angular/core';
-import { Connect, SimpleSigner,  } from 'uport-connect';
+//import { Connect, SimpleSigner,  } from 'uport-connect';
 import Web3 from 'web3';
 
 

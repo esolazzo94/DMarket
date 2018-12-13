@@ -40,7 +40,9 @@ export class ContractService {
       //this.web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa'));
       //var contract = this.web3.eth.contract(abi);
       //this.web3.setProvider(this.web3.currentProvider);
-      this.contractInstance = authenticationService.getConnect().contract(abi).at(this.contractAddress);
+      var contract= this.web3.eth.contract(abi);
+      this.contractInstance = contract.at(this.contractAddress);
+      //this.contractInstance = this.authenticationService.getConnect().contract(abi).at(this.contractAddress);
       this.balance$ = new Subject();
    }
 
@@ -270,10 +272,28 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
           }
           this.authenticationService.getConnect().sendTransaction(txobject).then(txID => {
             console.log(txID);
+          })*//*
+          that.contractInstance.methods.addUser(address,publicKey,user.name,user.avatar.uri)
+          .send({
+            from: this.walletService.getWallet().address,
+            gas: 150000 * contractAddresses.length,
+            gasPrice: this.web3.utils.toWei(this.gasPrice, 'gwei')
+          }).on('transactionHash', (hash) => {
+            console.log(hash);
+
           })*/
-          that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri).then(txhash => {
-            console.log(txhash)
-          });
+          that.web3.eth.defaultAccount= address;
+          that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri, (error, txHash) => {
+            if (error) { throw error }
+              that.waitForMined(txHash, { blockNumber: null }, 
+              function pendingCB () {
+                console.log("wait");
+              },
+              function successCB (data) {
+                console.log("success");
+              }
+           ,that )
+          })
 
           /*contractInstance.addUser(address,publicKey,user.name,user.avatar.uri,function(error,result){
             that.getBalance(address);
@@ -288,6 +308,29 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
       //}
     //});
   }
+
+  // Callback handler for whether it was mined or not
+private waitForMined (txHash, response, pendingCB, successCB, that) {
+  if (response.blockNumber) {
+    successCB()
+  } else {
+    pendingCB()
+      this.pollingLoop(txHash, response, pendingCB, successCB, that)
+  }
+}
+
+// Recursive polling to do continuous checks for when the transaction was mined
+private pollingLoop (txHash, response, pendingCB, successCB, that)  {
+  setTimeout(function () {
+    this.web3.eth.getTransaction(txHash, (error, response) => {
+      if (error) { throw error }
+        if (response === null) {
+          response = { blockNumber: null }
+        } // Some ETH nodes do not return pending tx
+        that.waitForMined(txHash, response, pendingCB, successCB)
+    })
+  }, 1000) // check again in one sec.
+}
 
 
   public byteArrayToBase64(byteArray){
