@@ -194,13 +194,11 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
       var escrowContract = this.web3.eth.contract(abi);
       var contractAddress;
 
+      that.web3.eth.defaultAccount= localUser.address;
       var escrowIstance = escrowContract.new(this.contractAddress,hash,
         {
-            from: localUser.address,
-            gas: 4712388,
-            gasPrice: 9000000000,
             data: bytecode,
-        }, function (error, contract){
+        },  (error, contract) => {
             if(error) {
               resolve(false);
             }
@@ -209,19 +207,20 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
                 console.log('Contract mined! address: ' + contract.address + '\ntransactionHash: ' + contract.transactionHash);
                 contractAddress= contract.address;
 
-                contract.setPayee.sendTransaction(sellerAddress,{from:localUser.address,gas : 2200000 },function(error,result){
+                that.web3.eth.defaultAccount= localUser.address;
+                contract.setPayee(sellerAddress,(error, txHash) =>{
                   if(error) resolve(false);
                 });
                 
-                contract.depositFromBuyer.sendTransaction({from:localUser.address,gas : 2200000, value:that.web3.toWei(price*2,'ether')},async function(error,result){
+                contract.depositFromBuyer({value:that.web3.toWei(price*2,'ether')},async (error, txHash) =>{
                   if(!error){
                                   
-                      that.contractInstance.purchase.sendTransaction(hash,contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
-                        console.log(error,result);
+                      that.contractInstance.purchase(hash,contractAddress,(error, txHash) =>{
+                        if(error) resolve(false);
                       });
-                      that.contractInstance.addUserPurchase.sendTransaction(contractAddress,{from:localUser.address,gas : 2200000},function(error,result){
-                        console.log(error,result);
-                        resolve(true);
+                      that.contractInstance.addUserPurchase(contractAddress,(error, txHash) =>{
+                        if(error) resolve(false);
+                        else resolve(true);
                       });
                                        
                     await that.getBalance(localUser.address);
@@ -251,7 +250,7 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
       else {    
         that.createKeyPair().then((publicKey) =>{
         
-          if (!that.web3.eth.defaultAccount) that.web3.eth.defaultAccount= address;
+          that.web3.eth.defaultAccount= address;
           that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri, async (error, txHash) => {
             if (!error) { 
               that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
@@ -365,9 +364,10 @@ async addProduct(description:string, price:number, hashBytes:any):Promise<boolea
   localUser = JSON.parse(localStorage.getItem('currentUser'));
   var weiPrice = this.web3.toWei(price, 'ether');
   try {
-    this.contractInstance.addProduct.sendTransaction(description,this.hash(hashBytes),weiPrice,{ from: localUser.address,gas:3000000},function(error,result){
+    that.web3.eth.defaultAccount= localUser.address;
+    this.contractInstance.addProduct(description,this.hash(hashBytes),weiPrice,(error, txHash)=>{
       that.getBalance(localUser.address);
-    if (result) {
+    if (!error) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
      resolve(true);
     }  
@@ -389,7 +389,8 @@ deleteProduct(hash: string, index: number): Promise<boolean> {
     var localUser = new User;
     var that = this;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
-    that.contractInstance.deleteProduct.sendTransaction(localUser.address,hash,index,{ from: localUser.address,gas:3000000}, function(error,result){
+    that.web3.eth.defaultAccount= localUser.address;
+    that.contractInstance.deleteProduct(localUser.address,hash,index,(error, txHash) =>{
       that.getBalance(localUser.address);
       if (!error) {
         resolve(true);
