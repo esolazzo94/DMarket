@@ -38,8 +38,9 @@ export class ContractService {
       this.web3 = new Web3 (authenticationService.getConnect().getProvider());//authenticationService.getWeb3();
       //this.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'));
       //this.web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa'));
-      var contract = this.web3.eth.contract(abi);
-      this.contractInstance = contract.at(this.contractAddress);
+      //var contract = this.web3.eth.contract(abi);
+      //this.web3.setProvider(this.web3.currentProvider);
+      this.contractInstance = authenticationService.getConnect().contract(abi).at(this.contractAddress);
       this.balance$ = new Subject();
    }
 
@@ -240,20 +241,41 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
     /*if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
     else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";*/
     var that = this;
-    this.contractInstance.getUser(address,{ from: address},function(error,result){
+    /*this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
         that.alertService.openDialog("Utente già registrato",true);
         
       }
-      else {    
+      else { */   
         that.createKeyPair().then((publicKey) =>{
-          /*that.web3.eth.sendTransaction({from:address,to: that.contractAddress, value: that.web3.toWei(0.01,'ether')},function(error,result){
-            console.log(error,result);
-          })*/
-          that.contractInstance.users("0x595645ef4bf510a1f6b9f0e281e6012aaccb228a",{ from: "0x595645ef4bf510a1f6b9f0e281e6012aaccb228a"},function(error,result){console.log(error,result)});
+/*
+          that.contractInstance.getOwner({ from: address},function(error,result){
+            console.log(error,result)
+          });*/
+/*
+          that.web3.eth.defaultAccount = address;
+          console.log(that.web3.eth.defaultAccount);
 
-          /*that.contractInstance.addUser.sendTransaction(address,publicKey,user.name,user.avatar.uri,{ from: "0x595645ef4bF510a1f6B9F0e281E6012aACCB228A",gas: 2546339,
-          gasPrice:2000000000 },function(error,result){
+          var abi = JSON.parse(JSON.stringify(data)).abi;
+          var contractInstance = this.web3.eth.contract(abi).at(this.contractAddress);
+
+          contractInstance.getOwner({ from: address},function(error,result){
+            console.log(error,result)
+          });
+
+          const txobject = {
+            to: this.contractAddress,
+            function: contractInstance.addUser(address,publicKey,user.name,user.avatar.uri,function(error,result){console.log(error,result);}),
+            appName: 'Erasmo Solazzo\'s new app'
+          }
+          this.authenticationService.getConnect().sendTransaction(txobject).then(txID => {
+            console.log(txID);
+          })*/
+          that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri).then(txhash => {
+            console.log(txhash)
+          });
+
+          /*contractInstance.addUser(address,publicKey,user.name,user.avatar.uri,function(error,result){
             that.getBalance(address);
             if(!error) {
             that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
@@ -263,8 +285,8 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
           }    
         });*/
        });       
-      }
-    });
+      //}
+    //});
   }
 
 
