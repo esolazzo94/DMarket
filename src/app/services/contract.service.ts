@@ -48,11 +48,11 @@ export class ContractService {
 
    loginUser(addressLogin: string, returnUrl: string) {
     const decodedId = uportconnect.MNID.decode(addressLogin);
-    //var address = decodedId.address;
-    var address;
+    var address = decodedId.address;
+    //var address;
     //if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
-    if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
-    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";
+    /*if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";*/
     var that = this;
     var loginUser = new User;
     loginUser.address = address;
@@ -238,77 +238,37 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
   async registerUser(user: any) {
     const decodedId = uportconnect.MNID.decode(user.address);
     var address = decodedId.address;
-    var address;
+    //var address;
     //if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
     /*if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
     else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";*/
     var that = this;
-    /*this.contractInstance.getUser(address,{ from: address},function(error,result){
+    this.contractInstance.getUser(address,{ from: address},function(error,result){
       if (result[0] !== "") {
         that.alertService.openDialog("Utente già registrato",true);
         
       }
-      else { */   
+      else {    
         that.createKeyPair().then((publicKey) =>{
-/*
-          that.contractInstance.getOwner({ from: address},function(error,result){
-            console.log(error,result)
-          });*/
-/*
-          that.web3.eth.defaultAccount = address;
-          console.log(that.web3.eth.defaultAccount);
-
-          var abi = JSON.parse(JSON.stringify(data)).abi;
-          var contractInstance = this.web3.eth.contract(abi).at(this.contractAddress);
-
-          contractInstance.getOwner({ from: address},function(error,result){
-            console.log(error,result)
-          });
-
-          const txobject = {
-            to: this.contractAddress,
-            function: contractInstance.addUser(address,publicKey,user.name,user.avatar.uri,function(error,result){console.log(error,result);}),
-            appName: 'Erasmo Solazzo\'s new app'
-          }
-          this.authenticationService.getConnect().sendTransaction(txobject).then(txID => {
-            console.log(txID);
-          })*//*
-          that.contractInstance.methods.addUser(address,publicKey,user.name,user.avatar.uri)
-          .send({
-            from: this.walletService.getWallet().address,
-            gas: 150000 * contractAddresses.length,
-            gasPrice: this.web3.utils.toWei(this.gasPrice, 'gwei')
-          }).on('transactionHash', (hash) => {
-            console.log(hash);
-
-          })*/
-          that.web3.eth.defaultAccount= address;
-          that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri, (error, txHash) => {
-            if (error) { throw error }
-              that.waitForMined(txHash, { blockNumber: null }, 
-              function pendingCB () {
-                console.log("wait");
-              },
-              function successCB (data) {
-                console.log("success");
-              }
-           ,that )
+        
+          if (!that.web3.eth.defaultAccount) that.web3.eth.defaultAccount= address;
+          that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri, async (error, txHash) => {
+            if (!error) { 
+              that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
+              await that.getBalance(address);
+              
+            }
+            else {
+              that.alertService.openDialog("Errore nella registazione "+error.message,true); 
+            }
+              
           })
 
-          /*contractInstance.addUser(address,publicKey,user.name,user.avatar.uri,function(error,result){
-            that.getBalance(address);
-            if(!error) {
-            that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
-          }
-          else {
-            that.alertService.openDialog("Errore nella registazione "+error.message,true);
-          }    
-        });*/
        });       
-      //}
-    //});
+      }
+    });
   }
-
+/*
   // Callback handler for whether it was mined or not
 private waitForMined (txHash, response, pendingCB, successCB, that) {
   if (response.blockNumber) {
@@ -327,11 +287,11 @@ private pollingLoop (txHash, response, pendingCB, successCB, that)  {
         if (response === null) {
           response = { blockNumber: null }
         } // Some ETH nodes do not return pending tx
-        that.waitForMined(txHash, response, pendingCB, successCB)
+        that.waitForMined(txHash, response, pendingCB, successCB,that)
     })
   }, 1000) // check again in one sec.
 }
-
+*/
 
   public byteArrayToBase64(byteArray){
     var binaryString = "";
