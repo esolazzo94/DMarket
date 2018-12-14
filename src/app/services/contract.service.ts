@@ -26,7 +26,8 @@ export class ContractService {
   private contractInstance;
   public balance$;
 
-  readonly contractAddress = "0x3dfb7ec1ee107d33877b6dc362d7c65d1f09cc47";
+  //readonly contractAddress = "0x3dfb7ec1ee107d33877b6dc362d7c65d1f09cc47"; //Work
+  readonly contractAddress ="0xcfeb149b6e5797b6fe1e1e21cefdc95e545ca904"; //Home
   //readonly contractAddress = "0x115ff25b669825bb8209ff9dcd5863d96ffc8c79";
 
   constructor(
@@ -189,12 +190,19 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
       var localUser = new User;
       var that = this;
       localUser = JSON.parse(localStorage.getItem('currentUser'));
-      var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
-      var bytecode = JSON.parse(JSON.stringify(EscrowContract)).bytecode;
-      var escrowContract = this.web3.eth.contract(abi);
-      var contractAddress;
+      //var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
+      //var bytecode = JSON.parse(JSON.stringify(EscrowContract)).bytecode;
+      //var escrowContract = this.web3.eth.contract(abi);
+      //var contractAddress;
 
       that.web3.eth.defaultAccount= localUser.address;
+      this.contractInstance.purchase(hash,sellerAddress,that.web3.toWei((price*2+0.009)/2,'ether'),{value:that.web3.toWei(price*2+0.009,'ether'),gasLimit:4700000},async (error, txHash) =>{
+        await that.getBalance(localUser.address);
+        if(error) resolve(false);
+        else resolve(true);
+      });
+
+      /*
       var escrowIstance = escrowContract.new(this.contractAddress,hash,
         {
             data: bytecode,
@@ -229,7 +237,7 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
                   else resolve(false);
                 });
             }
-        });
+        });*/
       
     })
   }

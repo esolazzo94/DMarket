@@ -1,5 +1,7 @@
 pragma solidity ^0.4.23;
 
+import './MarketEscrow.sol';
+
 contract Market {
 
 address private owner;
@@ -89,13 +91,29 @@ function getProductPurchase(bytes32 product, uint256 index) returns(address) {
 function getProductPrice(bytes32 product) returns(uint256) {
   return products[product].price;
 }
-
+/*
 function purchase(bytes32 hashFile, address escrowAddress) {
   products[hashFile].purchase[msg.sender] = escrowAddress;
   products[hashFile].purchaseLUT.push(escrowAddress);
   products[hashFile].purchaseLUTLenght++;
   users[products[hashFile].seller].saleNumber++;
+}*/
+
+function purchase(bytes32 hashFile, address seller, uint256 price) public payable {
+  require(msg.value == (price*2));
+  address instanceEscrowAddress = new MarketEscrow(address(this),hashFile); 
+  MarketEscrow instanceEscrow = MarketEscrow(instanceEscrowAddress);
+  instanceEscrow.setPayee(seller);
+  instanceEscrow.depositFromBuyer.value(msg.value)();
+
+  products[hashFile].purchase[msg.sender] = instanceEscrowAddress;
+  products[hashFile].purchaseLUT.push(instanceEscrowAddress);
+  products[hashFile].purchaseLUTLenght++;
+  users[products[hashFile].seller].saleNumber++;
+
+  addUserPurchase(instanceEscrowAddress);
 }
+
 
 function getEscrowAddress(bytes32 hashFile, address buyer) returns(address) {
   return products[hashFile].purchase[buyer];
