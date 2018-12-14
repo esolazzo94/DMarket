@@ -27,7 +27,7 @@ export class ContractService {
   public balance$;
 
   //readonly contractAddress = "0x3dfb7ec1ee107d33877b6dc362d7c65d1f09cc47"; //Work
-  readonly contractAddress ="0xcfeb149b6e5797b6fe1e1e21cefdc95e545ca904"; //Home
+  readonly contractAddress ="0xbb83830e98ba51da443b71e16a6c506d5259370d"; //Home
   //readonly contractAddress = "0x115ff25b669825bb8209ff9dcd5863d96ffc8c79";
 
   constructor(
@@ -189,6 +189,9 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
     return new Promise<boolean>(resolve=>{
       var localUser = new User;
       var that = this;
+      var sellerAddressAfter = sellerAddress;
+      var hashAfter = hash;
+      var priceAfter = price;
       localUser = JSON.parse(localStorage.getItem('currentUser'));
       //var abi = JSON.parse(JSON.stringify(EscrowContract)).abi;
       //var bytecode = JSON.parse(JSON.stringify(EscrowContract)).bytecode;
@@ -196,10 +199,47 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
       //var contractAddress;
 
       that.web3.eth.defaultAccount= localUser.address;
-      this.contractInstance.purchase(hash,sellerAddress,that.web3.toWei((price*2+0.009)/2,'ether'),{value:that.web3.toWei(price*2+0.009,'ether'),gasLimit:4700000},async (error, txHash) =>{
-        await that.getBalance(localUser.address);
+      this.contractInstance.purchase(hash,sellerAddress,localUser.address,async (error, txHash) =>{
         if(error) resolve(false);
-        else resolve(true);
+        else {
+        that.waitForMined(txHash, { blockNumber: null },
+          function pendingCB () {
+            console.log("wait");
+          },
+          async function successCB (data) {
+            await that.getBalance(localUser.address);
+            console.log(data);
+            if(data) {
+              localUser = await that.updateUser();
+              that.contractInstance.getUserPurchase.call(localUser.address,localUser.purchaseTotalLenght-1,{ from: localUser.address }, function(error,result) {
+                if(!error) {
+                  that.contractInstance.afterEscrow(hashAfter,sellerAddressAfter,result,{value:that.web3.toWei(priceAfter*2,'ether')},async (error, txHash) =>{
+                    if(error) resolve(false);
+                    else {
+                      that.waitForMined(txHash, { blockNumber: null },
+                        function pendingCB () {
+                          console.log("wait");
+                        },
+                        async function successCB (data) {
+                          await that.getBalance(localUser.address);
+                          console.log(data);
+                          if(data) {
+    
+                            resolve(true);
+                          }
+                        },
+                        that);
+                    }
+                  });
+                }
+              });
+              
+            }
+            else resolve(false);
+          }
+          ,that);   
+        }
+        /**/
       });
 
       /*
@@ -260,26 +300,33 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
         
           that.web3.eth.defaultAccount= address;
           that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri, async (error, txHash) => {
-            if (!error) { 
-              that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
-              await that.getBalance(address);
-              
-            }
+            if (error) that.alertService.openDialog("Errore nella registazione "+error.message,true); 
             else {
-              that.alertService.openDialog("Errore nella registazione "+error.message,true); 
-            }
-              
-          })
-
+            that.waitForMined(txHash, { blockNumber: null },
+              function pendingCB () {
+                console.log("wait");
+              },
+              async function successCB (data) {
+                if (data) { 
+                  that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
+                  await that.getBalance(address);                 
+                }
+                else {
+                  that.alertService.openDialog("Errore nella registazione "+error.message,true); 
+                }
+              }
+              ,that);    
+            }  
+          })    
        });       
       }
     });
   }
-/*
+
   // Callback handler for whether it was mined or not
 private waitForMined (txHash, response, pendingCB, successCB, that) {
   if (response.blockNumber) {
-    successCB()
+    successCB(response.blockNumber)
   } else {
     pendingCB()
       this.pollingLoop(txHash, response, pendingCB, successCB, that)
@@ -298,7 +345,7 @@ private pollingLoop (txHash, response, pendingCB, successCB, that)  {
     })
   }, 1000) // check again in one sec.
 }
-*/
+
 
   public byteArrayToBase64(byteArray){
     var binaryString = "";

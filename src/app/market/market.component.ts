@@ -36,14 +36,14 @@ export class MarketComponent implements OnInit {
     }
    }
 
-   buyProduct() {
+   async buyProduct() {
     var localUser = new User;
     localUser = JSON.parse(localStorage.getItem('currentUser'));
     if (localUser.address.toLowerCase() === this.actualProduct.seller.toLowerCase()) {
       this.alertService.openDialog("Non puoi acquistare un tuo prodotto",true);
     }
     else {
-      var res = this.contractService.buyProduct(this.actualProduct.seller,this.actualProduct.hash,this.actualProduct.price);
+      var res = await this.contractService.buyProduct(this.actualProduct.seller,this.actualProduct.hash,this.actualProduct.price);
       this.actualProduct=new Product();
       this.noProduct=true;
       if (res) this.alertService.openDialog("Richiesta acquisto inviata",false);

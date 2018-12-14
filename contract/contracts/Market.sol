@@ -1,6 +1,7 @@
 pragma solidity ^0.4.23;
 
-import './MarketEscrow.sol';
+//import './MarketEscrow.sol';
+import '../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract Market {
 
@@ -8,7 +9,7 @@ address private owner;
 
 address public children;
 
-constructor() {
+constructor() public {
   owner = msg.sender;
   productsCount = 0;
 }
@@ -39,9 +40,9 @@ function addUser(address userAddress, string key, string name, string avatar) pu
   users[userAddress].saleNumber = 0;
 }
 
-function addUserPurchase(address escrowAddress) public {
-  users[msg.sender].purchaseLUT.push(escrowAddress);
-  users[msg.sender].purchaseLUTLenght++;
+function addUserPurchase(address escrowAddress,address userAddress) public  {
+  users[userAddress].purchaseLUT.push(escrowAddress);
+  users[userAddress].purchaseLUTLenght++;
 }
 
 
@@ -51,11 +52,11 @@ function getUser(address userAddress) public view returns (string,string,string,
 
 
 
-function getUserProduct(address userAddress, uint256 index) returns(bytes32) {
+function getUserProduct(address userAddress, uint256 index) public view returns(bytes32) {
   return users[userAddress].products[index];
 }
 
-function getUserPurchase(address userAddress, uint256 index) returns(address) {
+function getUserPurchase(address userAddress, uint256 index) public view returns(address) {
   return users[userAddress].purchaseLUT[index];
 }
 
@@ -63,13 +64,13 @@ function getUserPurchase(address userAddress, uint256 index) returns(address) {
 function getOwner() public view returns (address) {
   return owner;
 }
-
+/*
 function blockUser(address user, bytes32 product, address buyer) public {
   var requesterAddress = getEscrowAddress(product,buyer);
   if (msg.sender == requesterAddress) {
     users[user].blocked = true;
   }
-}
+}*/
 
 struct product {
   string description;
@@ -84,11 +85,11 @@ mapping (bytes32 => product) public products;
 mapping (uint => bytes32) private productsIndex; //doSomeStuff(accountBalances[accountIndex[i]]);
 uint private  productsCount;
 
-function getProductPurchase(bytes32 product, uint256 index) returns(address) {
+function getProductPurchase(bytes32 product, uint256 index) public view returns(address) {
   return products[product].purchaseLUT[index];
 }
 
-function getProductPrice(bytes32 product) returns(uint256) {
+function getProductPrice(bytes32 product) public view returns(uint256) {
   return products[product].price;
 }
 /*
@@ -99,23 +100,35 @@ function purchase(bytes32 hashFile, address escrowAddress) {
   users[products[hashFile].seller].saleNumber++;
 }*/
 
-function purchase(bytes32 hashFile, address seller, uint256 price) public payable {
-  require(msg.value == (price*2));
-  address instanceEscrowAddress = new MarketEscrow(address(this),hashFile); 
-  MarketEscrow instanceEscrow = MarketEscrow(instanceEscrowAddress);
+function purchase(bytes32 hashFile, address seller,address buyer) public {
+  //require(msg.value == (price*2));
+  address instanceEscrowAddress = new MarketEscrow(address(this),buyer,hashFile); 
+  /*MarketEscrow instanceEscrow = MarketEscrow(instanceEscrowAddress);
   instanceEscrow.setPayee(seller);
   instanceEscrow.depositFromBuyer.value(msg.value)();
 
   products[hashFile].purchase[msg.sender] = instanceEscrowAddress;
   products[hashFile].purchaseLUT.push(instanceEscrowAddress);
   products[hashFile].purchaseLUTLenght++;
-  users[products[hashFile].seller].saleNumber++;
+  users[products[hashFile].seller].saleNumber++;*/
 
-  addUserPurchase(instanceEscrowAddress);
+  addUserPurchase(instanceEscrowAddress,msg.sender);
 }
 
+function afterEscrow(bytes32 hashFile,address seller, address escrowAddress) public payable {
+  require(msg.value == (products[hashFile].price*2));
+  
+  MarketEscrow instanceEscrow = MarketEscrow(escrowAddress);
+  instanceEscrow.setPayee(seller);
+  instanceEscrow.depositFromBuyer.value(msg.value)();
 
-function getEscrowAddress(bytes32 hashFile, address buyer) returns(address) {
+  products[hashFile].purchase[msg.sender] = escrowAddress;
+  products[hashFile].purchaseLUT.push(escrowAddress);
+  products[hashFile].purchaseLUTLenght++;
+  users[products[hashFile].seller].saleNumber++;
+}
+
+function getEscrowAddress(bytes32 hashFile, address buyer) public view returns(address) {
   return products[hashFile].purchase[buyer];
 }
 
@@ -153,7 +166,7 @@ function addProduct(string description, bytes32 hashProduct, uint256 price) publ
     productsCount++;
   }
 }
-
+/*
 function convert(string key) returns (bytes32 ret) {
     if (bytes(key).length > 32) {
       throw;
@@ -162,7 +175,7 @@ function convert(string key) returns (bytes32 ret) {
     assembly {
       ret := mload(add(key, 32))
     }
-  }
+  }*/
 /*
 function getProduct(bytes32 hashProduct) public returns(string,address,uint256,uint256) {
   //bytes32 hashProduct = convert(hashString);
@@ -189,10 +202,10 @@ function deleteProduct(address user, bytes32 hashProduct, uint256 index) public 
 }
 
 //function deposit(address payee) public payable
-
+/*
 function unblockUser (address user) restricted public {
   users[user].blocked = false;
-}
+}*/
 
   
 function kill() restricted public {
@@ -203,4 +216,171 @@ modifier restricted() {
     require(msg.sender == owner);
     _;
   }
+}
+
+contract MarketEscrow /*is ConditionalEscrow*/ {
+
+using SafeMath for uint256;
+
+enum State {Contratto_creato,In_attesa_del_venditore,Prodotto_disponibile,Errore_nella_transazione,Operazione_conclusa}
+State public state;
+    
+ 
+bytes32 public hashFile;
+
+string public keyAddress;
+string public addressEncryptedFile; 
+string public nameFile; 
+address private _marketAddress; 
+uint256 private _expiration;
+
+uint256 private depositPayee;
+uint256 private depositBuyer;
+Market private _marketIstance;
+
+uint256 private _depositSeller;
+uint256 private _depositBuyer;
+uint256 public price;
+
+address public payee;
+address public buyer;
+address public contractMarketAddress;
+    
+constructor(address addr, address buyerAddress,bytes32 hFile) public {
+    _expiration = now + 86400;
+    contractMarketAddress = addr;
+    _depositSeller = 0;
+    _depositBuyer = 0;
+    buyer = buyerAddress;
+    hashFile = hFile;
+    _marketIstance = Market(contractMarketAddress);
+    price = _marketIstance.getProductPrice(hashFile);
+    state = State.Contratto_creato;
+    }    
+    
+function setPayee(address p) public onlyContract() {
+ payee = p;
+}
+
+function setFile(bytes32 hFile, string hEncryptedFile, string key, string name) public payable onlyPayee()  {
+    //bytes32 hFile = marketIstance.convert(hFileString);
+    //bytes32 hEncryptedFile = marketIstance.convert(hEncryptedFileString);
+    /*require(hashFile == hFile);
+    addressEncryptedFile = hEncryptedFile;
+    keyAddress = key;
+    deposit(msg.sender);
+    state = State.Prodotto_disponibile;*/
+    require(hashFile == hFile);
+    require(msg.value == price);
+    addressEncryptedFile = hEncryptedFile;
+    keyAddress = key;
+    nameFile = name;
+    uint256 amount = msg.value;
+    _depositSeller = _depositSeller.add(amount);
+    //deposit(msg.sender);
+    //depositPayee = msg.value;
+    state = State.Prodotto_disponibile;
+}
+/*
+function getHashAddress() public view returns(bytes32) {
+    return hashEncryptedFile;
+}*/
+
+function depositFromBuyer() public payable onlyContract() {
+    /*require(depositBuyer == 0);
+    deposit(msg.sender);
+    depositBuyer = depositsOf(msg.sender);*/
+    require(msg.value == 2*price);
+    uint256 amount = msg.value;
+    _depositBuyer = _depositBuyer.add(amount);
+    state = State.In_attesa_del_venditore;
+}
+/*
+function depositFromSeller() public payable onlyPayee() {
+    
+    deposit(msg.sender);
+    
+    state = State.In_attesa_del_venditore;
+}*/
+/*
+function withdrawalAllowed(address payee) public view returns (bool) {
+      
+        address h = marketIstance.getEscrowAddress(hashFile,this.primary());
+        //if(stringsEqual(hashFile,h)) return true;
+        if (h == address(this)) {           
+            return true;
+        }
+        else {          
+            return false;
+        }
+    }
+
+function withdraw(address payee) public onlyPrimary() {
+    require(withdrawalAllowed(payee));
+    payee.transfer(depositPayee);
+    msg.sender.transfer(depositBuyer);
+    resetDeposit();
+    super.withdraw(payee);
+    state = State.Operazione_conclusa;
+  }
+
+function blockUser(address payee) public onlyPrimary() {
+ marketIstance.blockUser(payee,hashFile,this.primary());
+}
+
+function resetDeposit() private {
+    depositPayee = 0;
+    depositBuyer = 0;
+}
+
+function refundBuyer(address payee) public onlyPrimary() {
+    if (!withdrawalAllowed(payee)){
+        //this.primary().transfer(depositPayee);
+        msg.sender.transfer(depositPayee);
+        msg.sender.transfer(depositBuyer);
+        resetDeposit();
+        msg.sender.transfer(depositsOf(payee));
+        state = State.Operazione_conclusa;
+        selfdestruct(msg.sender);
+    }       
+}*/
+
+function withdraw(bytes32 hFile) public onlyBuyer() returns(bool) {
+    if(hashFile == hFile){
+        uint256 paymentSeller = _depositBuyer;
+        uint256 paymentBuyer = _depositSeller;
+        resetDeposit();
+        payee.transfer(paymentSeller);
+        msg.sender.transfer(paymentBuyer);
+        state = State.Operazione_conclusa;
+        return true;
+    }
+    else {
+        state = State.Errore_nella_transazione;
+        return false;
+    }
+    
+  }
+
+  function resetDeposit() private {
+    _depositSeller = 0;
+    _depositBuyer = 0;
+}
+
+modifier onlyPayee() {
+    require(msg.sender == payee);
+    _;
+  }
+
+modifier onlyBuyer() {
+    require(msg.sender == buyer);
+    _;
+ }
+ 
+ modifier onlyContract() {
+    require(msg.sender == contractMarketAddress);
+    _;
+ }
+
+
 }
