@@ -302,20 +302,20 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
           that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri, async (error, txHash) => {
             if (error) that.alertService.openDialog("Errore nella registazione "+error.message,true); 
             else {
-            that.waitForMined(txHash, { blockNumber: null },
+            /*that.waitForMined(txHash, { blockNumber: null },
               function pendingCB () {
                 console.log("wait");
               },
               async function successCB (data) {
-                if (data) { 
+                if (data) { */
                   that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
                   await that.getBalance(address);                 
-                }
+                /*}
                 else {
                   that.alertService.openDialog("Errore nella registazione "+error.message,true); 
                 }
               }
-              ,that);    
+              ,that);  */  
             }  
           })    
        });       
@@ -421,7 +421,15 @@ async addProduct(description:string, price:number, hashBytes:any):Promise<boolea
   try {
     that.web3.eth.defaultAccount= localUser.address;
     this.contractInstance.addProduct(description,this.hash(hashBytes),weiPrice,(error, txHash)=>{
-      that.getBalance(localUser.address);
+      if(error) resolve(false);
+        else {
+        that.waitForMined(txHash, { blockNumber: null },
+          function pendingCB () {
+            console.log("wait");
+          },
+          async function successCB (data) {
+		if(data) {
+      await that.getBalance(localUser.address);
     if (!error) {
      that.alertService.openDialog("Prodotto Aggiunto",false);
      resolve(true);
@@ -430,7 +438,12 @@ async addProduct(description:string, price:number, hashBytes:any):Promise<boolea
     that.alertService.openDialog("Impossibile aggiungere prodotto",true);
     resolve(false);
       }
+    }
+  },that)
+}
+
     });   
+
   }
   catch(e) {
     that.alertService.openDialog("Impossibile aggiungere prodotto "+e.message,true);
@@ -666,10 +679,22 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
       escrowContractInstance.price.call ({from:localUser.address},function(error,result) {
 
         if(!error) {
-          escrowContractInstance.setFile.sendTransaction(hashLoadedFile,encryptedFileAddress,encryptedSessionKeyAddress,name,{from:localUser.address,gas : 2200000, value:result}, function(error,result){
-            if(result) resolve(true);
-            else resolve(false);
-            that.getBalance(localUser.address);
+          that.web3.eth.defaultAccount= localUser.address;
+          escrowContractInstance.setFile(hashLoadedFile,encryptedFileAddress,encryptedSessionKeyAddress,name,{value:result}, async (error, txHash) =>{
+            if(error) resolve(false);
+            else {
+            that.waitForMined(txHash, { blockNumber: null },
+              function pendingCB () {
+                console.log("wait");
+              },
+              async function successCB (data) {
+                  if(data) {
+                    await that.getBalance(localUser.address);
+                    if(result) resolve(true);
+                    else resolve(false);
+                  }
+              },that);
+            } 
           });
         }
 
