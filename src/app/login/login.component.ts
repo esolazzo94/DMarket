@@ -33,12 +33,18 @@ export class LoginComponent implements OnInit {
   connect() {
     this.authenticationService.login()
     .then((user) =>{
-      this.contractService.loginUser(user.address,this.returnUrl);
+      this.contractService.loginUser(user.networkAddress,this.returnUrl);
+    });    
+  }
+
+  recoverKey() {
+    this.authenticationService.login()
+    .then((user) =>{
+      this.contractService.recoverKey(user);
     });    
   }
 
   register() {
-    //this.alertService.openDialog("Non Implementato");
     this.authenticationService.login()
     .then((user) =>{
       

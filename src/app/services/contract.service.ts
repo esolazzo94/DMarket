@@ -27,8 +27,8 @@ export class ContractService {
   public balance$;
 
   //readonly contractAddress = "0x3dfb7ec1ee107d33877b6dc362d7c65d1f09cc47"; //Work
-  readonly contractAddress ="0xbb83830e98ba51da443b71e16a6c506d5259370d"; //Home
-  //readonly contractAddress = "0x115ff25b669825bb8209ff9dcd5863d96ffc8c79";
+  //readonly contractAddress ="0xbb83830e98ba51da443b71e16a6c506d5259370d"; //Home
+  readonly contractAddress = "0x949b05387021002cd90c81fd210a8f80c899287c";//Test remix
 
   constructor(
     private alertService: AlertService,
@@ -283,7 +283,7 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
   }
 
   async registerUser(user: any) {
-    const decodedId = uportconnect.MNID.decode(user.address);
+    const decodedId = uportconnect.MNID.decode(user.networkAddress);
     var address = decodedId.address;
     //var address;
     //if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
@@ -299,26 +299,72 @@ buyProduct(sellerAddress:string, hash:string, price:number):Promise<boolean> {
         that.createKeyPair().then((publicKey) =>{
         
           that.web3.eth.defaultAccount= address;
-          that.contractInstance.addUser(address,publicKey,user.name,user.avatar.uri, async (error, txHash) => {
+          var avatar;
+          if(user.avatar === undefined) avatar="../../assets/images/user.svg";
+          else avatar = user.avatar.uri;
+          that.contractInstance.addUser(address,publicKey,user.name,avatar, async (error, txHash) => {
             if (error) that.alertService.openDialog("Errore nella registazione "+error.message,true); 
             else {
-            /*that.waitForMined(txHash, { blockNumber: null },
+              /*that.waitForMined(txHash, { blockNumber: null },
               function pendingCB () {
                 console.log("wait");
               },
               async function successCB (data) {
                 if (data) { */
                   that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
-                  await that.getBalance(address);                 
-                /*}
+                  await that.getBalance(address); 
+                  /*}
                 else {
                   that.alertService.openDialog("Errore nella registazione "+error.message,true); 
                 }
               }
-              ,that);  */  
+              ,that);  */                  
             }  
           })    
        });       
+      }
+    });
+  }
+
+  async recoverKey(user: any) {
+    const decodedId = uportconnect.MNID.decode(user.networkAddress);
+    var address = decodedId.address;
+    //var address;
+    //if (navigator.appVersion.indexOf("OPR") !== -1) address = "0xE5d351DA4b19DD91694862aCb0c6C6B92E2Fe3dc";
+    /*if (navigator.appVersion.indexOf("Edge") !== -1) address = "0x1765960eEC68672800cefAa13A887438F37c523A";
+    else address = "0x273231D0669268e0D7Fce9C80b302b1F007224B0";*/
+    var that = this;
+    this.contractInstance.getUser(address,{ from: address},function(error,result){
+      if (result[0] !== "") {
+        that.createKeyPair().then((publicKey) =>{
+        
+          that.web3.eth.defaultAccount= address;
+          var avatar;
+          if(user.avatar === undefined) avatar="../../assets/images/user.svg";
+          else avatar = user.avatar.uri;
+          that.contractInstance.reloadUser(address,publicKey,user.name,avatar, async (error, txHash) => {
+            if (error) that.alertService.openDialog("Errore nella registazione "+error.message,true); 
+            else {
+              /*that.waitForMined(txHash, { blockNumber: null },
+              function pendingCB () {
+                console.log("wait");
+              },
+              async function successCB (data) {
+                if (data) { */
+                  that.alertService.openDialog("Registrazione completata.\n Conserva il file chiave scaricato.",false);
+                  await that.getBalance(address); 
+                  /*}
+                else {
+                  that.alertService.openDialog("Errore nella registazione "+error.message,true); 
+                }
+              }
+              ,that);  */                  
+            }  
+          })    
+       });        
+      }
+      else {    
+        that.alertService.openDialog("Utente non registrato",true);
       }
     });
   }
@@ -329,14 +375,14 @@ private waitForMined (txHash, response, pendingCB, successCB, that) {
     successCB(response.blockNumber)
   } else {
     pendingCB()
-      this.pollingLoop(txHash, response, pendingCB, successCB, that)
+      that.pollingLoop(txHash, response, pendingCB, successCB, that)
   }
 }
 
 // Recursive polling to do continuous checks for when the transaction was mined
 private pollingLoop (txHash, response, pendingCB, successCB, that)  {
   setTimeout(function () {
-    this.web3.eth.getTransaction(txHash, (error, response) => {
+    that.web3.eth.getTransaction(txHash, (error, response) => {
       if (error) { throw error }
         if (response === null) {
           response = { blockNumber: null }
@@ -769,10 +815,22 @@ getProductSale(hash: string, index:number, address:string): Promise<Escrow> {
       var localUser = this.loadUser();
       var escrowContractIstance = this.loadEscrowContract(escrowAddress);
 
-      escrowContractIstance.withdraw.sendTransaction(hash,{from:localUser.address,gas : 2200000}, async(error,result)=>{
-        await that.getBalance(localUser.address);
-        if (result) resolve(true);
-        else resolve(false);
+      that.web3.eth.defaultAccount= localUser.address;
+      escrowContractIstance.withdraw(hash, async (error, txHash)=>{
+        if(error) resolve(false);
+            else {
+            that.waitForMined(txHash, { blockNumber: null },
+              function pendingCB () {
+                console.log("wait");
+              },
+              async function successCB (data) {
+                  if(data) {
+                    await that.getBalance(localUser.address);
+                    if (data) resolve(true);
+                    else resolve(false);
+                  }
+              },that);
+            }   
       });
 
     });

@@ -40,6 +40,13 @@ function addUser(address userAddress, string key, string name, string avatar) pu
   users[userAddress].saleNumber = 0;
 }
 
+function reloadUser(address userAddress, string key, string name, string avatar) public {
+  require(msg.sender == userAddress);
+  users[userAddress].publicKey = key;
+  users[userAddress].name = name;
+  users[userAddress].avatar = avatar;
+}
+
 function addUserPurchase(address escrowAddress,address userAddress) public  {
   users[userAddress].purchaseLUT.push(escrowAddress);
   users[userAddress].purchaseLUTLenght++;
@@ -102,7 +109,7 @@ function purchase(bytes32 hashFile, address escrowAddress) {
 
 function purchase(bytes32 hashFile, address seller,address buyer) public {
   //require(msg.value == (price*2));
-  address instanceEscrowAddress = new MarketEscrow(address(this),buyer,hashFile); 
+  address instanceEscrowAddress = new MarketEscrow(address(this),buyer,owner,hashFile); 
   /*MarketEscrow instanceEscrow = MarketEscrow(instanceEscrowAddress);
   instanceEscrow.setPayee(seller);
   instanceEscrow.depositFromBuyer.value(msg.value)();
@@ -245,13 +252,15 @@ uint256 public price;
 address public payee;
 address public buyer;
 address public contractMarketAddress;
+address private admin;
     
-constructor(address addr, address buyerAddress,bytes32 hFile) public {
+constructor(address addr, address buyerAddress,address adminAddress,bytes32 hFile) public {
     _expiration = now + 86400;
     contractMarketAddress = addr;
     _depositSeller = 0;
     _depositBuyer = 0;
     buyer = buyerAddress;
+    admin = adminAddress;
     hashFile = hFile;
     _marketIstance = Market(contractMarketAddress);
     price = _marketIstance.getProductPrice(hashFile);
@@ -360,6 +369,27 @@ function withdraw(bytes32 hFile) public onlyBuyer() returns(bool) {
         return false;
     }
     
+  }
+
+function refund(bytes32 hFile) public {
+  require(msg.sender == admin);
+  require(state == State.Errore_nella_transazione);
+    if(hashFile == hFile){
+        uint256 paymentSeller = _depositBuyer;
+        uint256 paymentAdmin = _depositSeller;
+        resetDeposit();
+        payee.transfer(paymentSeller);
+        admin.transfer(paymentAdmin);
+        state = State.Operazione_conclusa;
+    }
+    else {
+        uint256 paymentBuyer = _depositBuyer;
+        paymentAdmin = _depositSeller;
+        resetDeposit();
+        buyer.transfer(paymentBuyer);
+        admin.transfer(paymentAdmin);
+        state = State.Operazione_conclusa;
+    }
   }
 
   function resetDeposit() private {

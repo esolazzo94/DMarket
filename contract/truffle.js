@@ -12,7 +12,7 @@ module.exports = {
       network_id: "*" // Match any network id
     },
     rinkeby: {
-      provider: function() { return new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa',1); },
+      provider: function() { return new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/v3/aeed36baad5e48838a5b7869b2da89fa',0); },
       network_id: 4,
       gas: 7000000,
       gasPrice: 2000000000
